@@ -1,0 +1,1118 @@
+object fmTaskEdit: TfmTaskEdit
+  Left = 635
+  Height = 549
+  Top = 286
+  Width = 547
+  BorderStyle = bsDialog
+  Caption = 'Добавление/изменение проекта'
+  ClientHeight = 549
+  ClientWidth = 547
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poDesktopCenter
+  LCLVersion = '2.2.6.0'
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 496
+    Top = 8
+    Width = 640
+    ActivePage = TabSheet3
+    TabIndex = 2
+    TabOrder = 0
+    object TabSheet1: TTabSheet
+      Caption = 'Основные'
+      ClientHeight = 468
+      ClientWidth = 632
+      object Panel1: TPanel
+        Left = 8
+        Height = 456
+        Top = 8
+        Width = 416
+        BevelInner = bvRaised
+        BevelOuter = bvLowered
+        ClientHeight = 456
+        ClientWidth = 416
+        TabOrder = 0
+        object Label1: TLabel
+          Left = 8
+          Height = 20
+          Top = 8
+          Width = 368
+          Alignment = taCenter
+          AutoSize = False
+          Caption = 'Наименование задачи:'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object edName: TEdit
+          Left = 8
+          Height = 28
+          Top = 32
+          Width = 368
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          MaxLength = 64
+          ParentFont = False
+          TabOrder = 0
+        end
+        object Label4: TLabel
+          Left = 8
+          Height = 20
+          Top = 176
+          Width = 368
+          Alignment = taCenter
+          AutoSize = False
+          Caption = 'Целевой каталог:'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object edTargetFolder: TEdit
+          Left = 8
+          Height = 28
+          Top = 200
+          Width = 368
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          MaxLength = 255
+          ParentFont = False
+          TabOrder = 3
+        end
+        object sbSelectTarget: TSpeedButton
+          Left = 380
+          Height = 27
+          Top = 200
+          Width = 28
+          Action = actSelectTarget
+          Images = ImageList
+          ImageIndex = 0
+        end
+        object edRunBeforeBackup: TEdit
+          Left = 8
+          Height = 28
+          Top = 344
+          Width = 368
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          MaxLength = 255
+          ParentFont = False
+          TabOrder = 5
+        end
+        object Label12: TLabel
+          Left = 8
+          Height = 20
+          Top = 312
+          Width = 368
+          Alignment = taCenter
+          AutoSize = False
+          Caption = 'Перед созданием бэкапа выполнить:'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label14: TLabel
+          Left = 8
+          Height = 20
+          Top = 240
+          Width = 368
+          Alignment = taCenter
+          AutoSize = False
+          Caption = 'Формат постфикса имени выходного файла'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object edTargetFormat: TEdit
+          Left = 8
+          Height = 28
+          Top = 272
+          Width = 336
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          MaxLength = 255
+          ParentFont = False
+          TabOrder = 4
+        end
+        object sbTargetFileFormatHelp: TSpeedButton
+          Left = 348
+          Height = 27
+          Top = 273
+          Width = 28
+          Action = actHelpFormat
+          Images = ImageList
+          ImageIndex = 2
+        end
+        object sbTryFormat: TSpeedButton
+          Left = 380
+          Height = 27
+          Top = 273
+          Width = 28
+          Action = actTryFormat
+          Images = ImageList
+          ImageIndex = 1
+        end
+        object Label15: TLabel
+          Left = 8
+          Height = 20
+          Top = 384
+          Width = 368
+          Alignment = taCenter
+          AutoSize = False
+          Caption = 'После создания бэкапа выполнить:'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object edRunAfterBackup: TEdit
+          Left = 8
+          Height = 28
+          Top = 416
+          Width = 368
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          MaxLength = 255
+          ParentFont = False
+          TabOrder = 6
+        end
+        object Label16: TLabel
+          Left = 8
+          Height = 20
+          Top = 69
+          Width = 192
+          Alignment = taCenter
+          AutoSize = False
+          Caption = ' Предмет резервирования '
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object cbSubject: TComboBox
+          Left = 204
+          Height = 23
+          Top = 69
+          Width = 172
+          ItemHeight = 15
+          ItemIndex = 0
+          Items.Strings = (
+            'Каталог'
+            'Файл'
+          )
+          OnChange = cbSubjectChange
+          Style = csDropDownList
+          TabOrder = 1
+          Text = 'Каталог'
+        end
+        object lblSource: TLabel
+          Left = 8
+          Height = 20
+          Top = 104
+          Width = 368
+          Alignment = taCenter
+          AutoSize = False
+          Caption = 'Исходный каталог:'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object edSource: TEdit
+          Left = 8
+          Height = 28
+          Top = 136
+          Width = 368
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          MaxLength = 255
+          ParentFont = False
+          TabOrder = 2
+        end
+        object sbSelectSource: TSpeedButton
+          Left = 380
+          Height = 27
+          Top = 136
+          Width = 28
+          Action = actSelectSource
+          Images = ImageList
+          ImageIndex = 0
+        end
+        object sbBeforeBackupFile: TSpeedButton
+          Left = 380
+          Height = 27
+          Top = 344
+          Width = 28
+          Glyph.Data = {
+            C6070000424DC607000000000000360000002800000016000000160000000100
+            2000000000009007000064000000640000000000000000000000000000010000
+            0004000000080000000900000009000000090000000900000009000000090000
+            0009000000090000000900000009000000090000000900000009000000090000
+            00090000000800000006000000015B5B5B00000000050000001F000000340000
+            0038000000380000003800000038000000380000003800000038000000380000
+            0038000000380000003800000038000000380000003800000038000000360000
+            0028000000085B5B5B000000000B3C3C3CA7855A39FBA16434FFA16434FFA164
+            34FFA16434FFA16434FFA16434FFA16434FFA16434FFA16434FFA16434FFA164
+            34FFA16434FFA16434FFA16434FFA26434FEA16333FA89552CBA000000100000
+            000100000004464646F29A7F69FFA96F41FFB88151FFB88151FFB88151FFB881
+            51FFB88151FFB88151FFB88151FFB88151FFB88151FFB88151FFB88151FFB881
+            51FFB88151FFB88151FFB6804EFFA56736F692582F315B5B5B005B5B5B004545
+            45F3A1978FFFB17E55FFD9B390FFD7B18CFFD7B18CFFD7B18CFFD7B18CFFD7B1
+            8CFFD7B18CFFD7B18CFFD7B18CFFD7B18CFFD7B18CFFD7B18CFFD7B18CFFD7B1
+            8CFFD8B28EFFAF7242F0A36333505B5B5B005B5B5B00454545F3A39F9BFFA66B
+            3CFFD5A980FFCF9E70FFCF9E70FFCF9E70FFCF9E70FFCF9E70FFCF9E70FFCF9E
+            70FFCF9E70FFCF9E70FFCF9E70FFCF9E70FFCF9E70FFCF9E70FFD4A67DFFB67D
+            4DF4A46534625B5B5B005B5B5B00454545F5A6A6A5FFA46635FFD9B290FFD0A0
+            74FFCF9E71FFCF9E71FFCF9E71FFCF9E71FFCF9E71FFCF9E71FFCF9E71FFCF9E
+            71FFCF9E71FFCF9E71FFCF9E71FFCF9E71FFD5AB84FFBD895EFAA36434755B5B
+            5B005B5B5B004A4A4AF5AAAAAAFFA5693BFFDEBEA1FFDCB695FFD8AF8AFFD6AB
+            84FFD4A77EFFD3A67CFFD3A67CFFD3A67CFFD3A67CFFD3A67CFFD3A67CFFD3A6
+            7CFFD3A67CFFD3A67CFFDAB592FFC59870FFA567358B5B5B5B005B5B5B004D4D
+            4DF7AEAEAEFFA66F44FFDFC1A7FFE0BFA2FFDDBA9AFFDDBA9AFFDDBA9AFFDCB8
+            97FFDCB795FFDBB694FFDBB492FFDAB28FFFD8AE89FFD7AD87FFD7AD87FFD7AD
+            87FFDEBC9DFFCFA886FFA76939A55B5B5B005B5B5B00525252F7B1B1B1FFA674
+            4CFFDEC1A7FFE2C3A8FFDDBA9AFFDDBA9AFFDDBA9AFFDDBA9AFFDDBA9AFFDDBA
+            9AFFDDBA9AFFDDBA9AFFDDBA9AFFDCB897FFD9B18DFFD7AD87FFDEBC9DFFD6B3
+            95FFA86B3ABC5B5B5B005B5B5B00555555F8B4B5B5FFA67A56FFD9B79BFFE2C3
+            A8FFDDB896FFDDB896FFDDB896FFDDB896FFDDB896FFDDB896FFDDB896FFDDB8
+            96FFDDB896FFDDB896FFDDB896FFD9B08BFFDCB694FFDAB99DFFA86B3AD05B5B
+            5B005B5B5B005A5A5AF9B9B9B9FFA57F60FFD2AD8DFFE2C4A9FFDBB592FFDBB5
+            92FFDBB592FFDBB592FFDBB592FFDBB592FFDBB592FFDBB592FFDBB592FFDBB5
+            92FFDBB592FFDBB592FFDCB794FFDEBFA3FFA86939E15B5B5B005B5B5B005E5E
+            5EFABDBDBDFFA5846BFFCBA280FFE2C5A9FFD9B38EFFD9B38EFFD9B38EFFD9B3
+            8EFFD9B38EFFD9B38EFFD9B38EFFD9B38EFFD9B38EFFD9B38EFFD9B38EFFD9B3
+            8EFFDCB896FFE1C5AAFFA66837F05B5B5B005B5B5B00616161FBC1C1C1FFA68B
+            75FFC49973FFEAD4BFFFEAD3BEFFEAD3BEFFEAD3BEFFEAD4BFFFEAD4BFFFEAD4
+            BFFFEAD4BFFFEAD4BFFFEAD4BFFFEAD4BFFFEAD4C0FFEAD4C0FFEAD4C0FFE6CE
+            B6FFA46535FC5B5B5B005B5B5B00656565FCC4C4C4FFA8988BFFA46736FFA669
+            38FFA66938FFA66938FFA56837FFA76939FFA76939FFA76939FFA66938FFA669
+            38FFA66938FFA66938FFA66837FFA66837FFA46635FFA56635FCA66736E7FF00
+            00015B5B5B006A6B6BFCC8C9C9FFACACACFFA9A7A6FFA7A5A4FFA5A3A2FFA19F
+            9EFF575956FFE9E7E6FFE8E6E5FFE8E6E5FFE7E5E4FFE7E5E4FFE6E4E3FFE6E4
+            E3FFE5E3E2FFD7D5D4FF5B5C5AF19F604008808000025B5B5B005B5B5B006F6F
+            6FFDCDCDCDFFAFAFAFFFACACACFFAAAAAAFFA8A8A8FFA6A6A6FF545856FFE6E6
+            E6FF9EA09FFF9B9D9CFF9B9D9CFF9B9D9CFFDDDDDDFFE3E3E3FFE3E3E3FFD0D1
+            D0FF595D5BF35B5B5B005B5B5B005B5B5B005B5B5B00727272FECFCFCFFFB3B3
+            B3FFAFAFAFFFADADADFFABABABFFAAAAAAFF545856FFE2E2E2FFE2E2E2FFE1E1
+            E1FFE1E1E1FFE0E0E0FFE0E0E0FFE9E9E9FFE5E5E5FFD0D0D0FF5B5F5DF15B5B
+            5B005B5B5B005B5B5B005B5B5B00767676FFD3D3D3FFD0D0D0FFCFCFCFFFCDCD
+            CDFFCDCDCDFFCBCBCBFF535755FFDCDCDCFF9C9D9CFF9C9D9CFF9C9D9CFF9C9D
+            9CFFD4D5D5FFFEFEFEFFFDFDFDFF959796FE595C5A9B5B5B5B005B5B5B005B5B
+            5B005B5B5B007A7A7AD67B7B7BF97B7B7BF87B7B7BF87B7B7BF87B7B7BF87B7B
+            7BF8535755FFDADADAFFD3D3D3FFD3D3D3FFD2D2D2FFCFCFCFFFCDCDCDFFFEFE
+            FEFF909191FE5B5E5CD3555555095B5B5B005B5B5B005B5B5B005B5B5B005555
+            5503707070107070701070707010707070107070701070707010545856FFF7F7
+            F7FFF8F8F8FFF9F9F9FFFAFAFAFFFBFBFBFFFBFBFBFF9FA0A0FF585B59E05B5B
+            5B0E5B5B5B005B5B5B005B5B5B005B5B5B005B5B5B005B5B5B005B5B5B005B5B
+            5B005B5B5B005B5B5B005B5B5B005B5B5B00545856F8555957FB545856FC5559
+            57FC555957FC565A58FD565A58FD5C5F5ED6555555155B5B5B005B5B5B005B5B
+            5B005B5B5B005B5B5B00
+          }
+        end
+        object sbAfterBackupFile: TSpeedButton
+          Left = 380
+          Height = 27
+          Top = 416
+          Width = 28
+          Glyph.Data = {
+            C6070000424DC607000000000000360000002800000016000000160000000100
+            2000000000009007000064000000640000000000000000000000000000010000
+            0004000000080000000900000009000000090000000900000009000000090000
+            0009000000090000000900000009000000090000000900000009000000090000
+            00090000000800000006000000015B5B5B00000000050000001F000000340000
+            0038000000380000003800000038000000380000003800000038000000380000
+            0038000000380000003800000038000000380000003800000038000000360000
+            0028000000085B5B5B000000000B3C3C3CA7855A39FBA16434FFA16434FFA164
+            34FFA16434FFA16434FFA16434FFA16434FFA16434FFA16434FFA16434FFA164
+            34FFA16434FFA16434FFA16434FFA26434FEA16333FA89552CBA000000100000
+            000100000004464646F29A7F69FFA96F41FFB88151FFB88151FFB88151FFB881
+            51FFB88151FFB88151FFB88151FFB88151FFB88151FFB88151FFB88151FFB881
+            51FFB88151FFB88151FFB6804EFFA56736F692582F315B5B5B005B5B5B004545
+            45F3A1978FFFB17E55FFD9B390FFD7B18CFFD7B18CFFD7B18CFFD7B18CFFD7B1
+            8CFFD7B18CFFD7B18CFFD7B18CFFD7B18CFFD7B18CFFD7B18CFFD7B18CFFD7B1
+            8CFFD8B28EFFAF7242F0A36333505B5B5B005B5B5B00454545F3A39F9BFFA66B
+            3CFFD5A980FFCF9E70FFCF9E70FFCF9E70FFCF9E70FFCF9E70FFCF9E70FFCF9E
+            70FFCF9E70FFCF9E70FFCF9E70FFCF9E70FFCF9E70FFCF9E70FFD4A67DFFB67D
+            4DF4A46534625B5B5B005B5B5B00454545F5A6A6A5FFA46635FFD9B290FFD0A0
+            74FFCF9E71FFCF9E71FFCF9E71FFCF9E71FFCF9E71FFCF9E71FFCF9E71FFCF9E
+            71FFCF9E71FFCF9E71FFCF9E71FFCF9E71FFD5AB84FFBD895EFAA36434755B5B
+            5B005B5B5B004A4A4AF5AAAAAAFFA5693BFFDEBEA1FFDCB695FFD8AF8AFFD6AB
+            84FFD4A77EFFD3A67CFFD3A67CFFD3A67CFFD3A67CFFD3A67CFFD3A67CFFD3A6
+            7CFFD3A67CFFD3A67CFFDAB592FFC59870FFA567358B5B5B5B005B5B5B004D4D
+            4DF7AEAEAEFFA66F44FFDFC1A7FFE0BFA2FFDDBA9AFFDDBA9AFFDDBA9AFFDCB8
+            97FFDCB795FFDBB694FFDBB492FFDAB28FFFD8AE89FFD7AD87FFD7AD87FFD7AD
+            87FFDEBC9DFFCFA886FFA76939A55B5B5B005B5B5B00525252F7B1B1B1FFA674
+            4CFFDEC1A7FFE2C3A8FFDDBA9AFFDDBA9AFFDDBA9AFFDDBA9AFFDDBA9AFFDDBA
+            9AFFDDBA9AFFDDBA9AFFDDBA9AFFDCB897FFD9B18DFFD7AD87FFDEBC9DFFD6B3
+            95FFA86B3ABC5B5B5B005B5B5B00555555F8B4B5B5FFA67A56FFD9B79BFFE2C3
+            A8FFDDB896FFDDB896FFDDB896FFDDB896FFDDB896FFDDB896FFDDB896FFDDB8
+            96FFDDB896FFDDB896FFDDB896FFD9B08BFFDCB694FFDAB99DFFA86B3AD05B5B
+            5B005B5B5B005A5A5AF9B9B9B9FFA57F60FFD2AD8DFFE2C4A9FFDBB592FFDBB5
+            92FFDBB592FFDBB592FFDBB592FFDBB592FFDBB592FFDBB592FFDBB592FFDBB5
+            92FFDBB592FFDBB592FFDCB794FFDEBFA3FFA86939E15B5B5B005B5B5B005E5E
+            5EFABDBDBDFFA5846BFFCBA280FFE2C5A9FFD9B38EFFD9B38EFFD9B38EFFD9B3
+            8EFFD9B38EFFD9B38EFFD9B38EFFD9B38EFFD9B38EFFD9B38EFFD9B38EFFD9B3
+            8EFFDCB896FFE1C5AAFFA66837F05B5B5B005B5B5B00616161FBC1C1C1FFA68B
+            75FFC49973FFEAD4BFFFEAD3BEFFEAD3BEFFEAD3BEFFEAD4BFFFEAD4BFFFEAD4
+            BFFFEAD4BFFFEAD4BFFFEAD4BFFFEAD4BFFFEAD4C0FFEAD4C0FFEAD4C0FFE6CE
+            B6FFA46535FC5B5B5B005B5B5B00656565FCC4C4C4FFA8988BFFA46736FFA669
+            38FFA66938FFA66938FFA56837FFA76939FFA76939FFA76939FFA66938FFA669
+            38FFA66938FFA66938FFA66837FFA66837FFA46635FFA56635FCA66736E7FF00
+            00015B5B5B006A6B6BFCC8C9C9FFACACACFFA9A7A6FFA7A5A4FFA5A3A2FFA19F
+            9EFF575956FFE9E7E6FFE8E6E5FFE8E6E5FFE7E5E4FFE7E5E4FFE6E4E3FFE6E4
+            E3FFE5E3E2FFD7D5D4FF5B5C5AF19F604008808000025B5B5B005B5B5B006F6F
+            6FFDCDCDCDFFAFAFAFFFACACACFFAAAAAAFFA8A8A8FFA6A6A6FF545856FFE6E6
+            E6FF9EA09FFF9B9D9CFF9B9D9CFF9B9D9CFFDDDDDDFFE3E3E3FFE3E3E3FFD0D1
+            D0FF595D5BF35B5B5B005B5B5B005B5B5B005B5B5B00727272FECFCFCFFFB3B3
+            B3FFAFAFAFFFADADADFFABABABFFAAAAAAFF545856FFE2E2E2FFE2E2E2FFE1E1
+            E1FFE1E1E1FFE0E0E0FFE0E0E0FFE9E9E9FFE5E5E5FFD0D0D0FF5B5F5DF15B5B
+            5B005B5B5B005B5B5B005B5B5B00767676FFD3D3D3FFD0D0D0FFCFCFCFFFCDCD
+            CDFFCDCDCDFFCBCBCBFF535755FFDCDCDCFF9C9D9CFF9C9D9CFF9C9D9CFF9C9D
+            9CFFD4D5D5FFFEFEFEFFFDFDFDFF959796FE595C5A9B5B5B5B005B5B5B005B5B
+            5B005B5B5B007A7A7AD67B7B7BF97B7B7BF87B7B7BF87B7B7BF87B7B7BF87B7B
+            7BF8535755FFDADADAFFD3D3D3FFD3D3D3FFD2D2D2FFCFCFCFFFCDCDCDFFFEFE
+            FEFF909191FE5B5E5CD3555555095B5B5B005B5B5B005B5B5B005B5B5B005555
+            5503707070107070701070707010707070107070701070707010545856FFF7F7
+            F7FFF8F8F8FFF9F9F9FFFAFAFAFFFBFBFBFFFBFBFBFF9FA0A0FF585B59E05B5B
+            5B0E5B5B5B005B5B5B005B5B5B005B5B5B005B5B5B005B5B5B005B5B5B005B5B
+            5B005B5B5B005B5B5B005B5B5B005B5B5B00545856F8555957FB545856FC5559
+            57FC555957FC565A58FD565A58FD5C5F5ED6555555155B5B5B005B5B5B005B5B
+            5B005B5B5B005B5B5B00
+          }
+        end
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Архиватор'
+      ClientHeight = 468
+      ClientWidth = 632
+      object Panel3: TPanel
+        Left = 8
+        Height = 104
+        Top = 8
+        Width = 416
+        BevelInner = bvRaised
+        BevelOuter = bvLowered
+        ClientHeight = 104
+        ClientWidth = 416
+        TabOrder = 0
+        object Label5: TLabel
+          Left = 8
+          Height = 20
+          Top = 8
+          Width = 168
+          AutoSize = False
+          Caption = 'Архиватор:'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object cbArchivator: TComboBox
+          Left = 192
+          Height = 28
+          Top = 8
+          Width = 216
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ItemHeight = 20
+          ParentFont = False
+          Style = csDropDownList
+          TabOrder = 0
+        end
+        object Label6: TLabel
+          Left = 8
+          Height = 20
+          Top = 40
+          Width = 400
+          Alignment = taCenter
+          AutoSize = False
+          Caption = 'Дополнительные параметры архиватора:'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object edArchivatorOptions: TEdit
+          Left = 8
+          Height = 28
+          Top = 64
+          Width = 400
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          MaxLength = 255
+          ParentFont = False
+          TabOrder = 1
+        end
+      end
+    end
+    object TabSheet3: TTabSheet
+      Caption = 'Период'
+      ClientHeight = 468
+      ClientWidth = 632
+      object Panel2: TPanel
+        Left = 24
+        Height = 176
+        Top = 32
+        Width = 416
+        BevelInner = bvRaised
+        BevelOuter = bvLowered
+        ClientHeight = 176
+        ClientWidth = 416
+        TabOrder = 0
+        object Label7: TLabel
+          Left = 7
+          Height = 20
+          Top = 8
+          Width = 368
+          Alignment = taCenter
+          AutoSize = False
+          Caption = 'Периодичность:'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object cbPeriod: TComboBox
+          Left = 6
+          Height = 28
+          Top = 40
+          Width = 399
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ItemHeight = 20
+          ItemIndex = 2
+          Items.Strings = (
+            'Каждую минуту'
+            'Каждый час'
+            'Ежедневно'
+            'Еженедельно'
+            'Ежемесячно'
+            'Ежегодно'
+          )
+          OnChange = cbPeriodChange
+          ParentFont = False
+          Style = csDropDownList
+          TabOrder = 0
+          Text = 'Ежедневно'
+        end
+        object Label8: TLabel
+          Left = 8
+          Height = 20
+          Top = 72
+          Width = 49
+          AutoSize = False
+          Caption = 'Время:'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label9: TLabel
+          Left = 7
+          Height = 20
+          Top = 104
+          Width = 97
+          AutoSize = False
+          Caption = 'День недели:'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object cbWeekDay: TComboBox
+          Left = 196
+          Height = 28
+          Top = 104
+          Width = 209
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ItemHeight = 20
+          ItemIndex = 0
+          Items.Strings = (
+            'Понедельник'
+            'Вторник'
+            'Среда'
+            'Четверг'
+            'Пятница'
+            'Суббота'
+            'Воскресенье'
+          )
+          ParentFont = False
+          Style = csDropDownList
+          TabOrder = 5
+          Text = 'Понедельник'
+        end
+        object edMonth: TEdit
+          Left = 344
+          Height = 28
+          Top = 136
+          Width = 42
+          Alignment = taRightJustify
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          MaxLength = 2
+          NumbersOnly = True
+          ParentFont = False
+          TabOrder = 8
+          Text = '1'
+        end
+        object udMonth: TUpDown
+          Left = 386
+          Height = 28
+          Top = 136
+          Width = 17
+          Associate = edMonth
+          Max = 12
+          Min = 1
+          Position = 1
+          TabOrder = 9
+        end
+        object Label11: TLabel
+          Left = 8
+          Height = 20
+          Top = 136
+          Width = 40
+          AutoSize = False
+          Caption = 'Дата'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object edMinute: TEdit
+          Left = 344
+          Height = 28
+          Top = 72
+          Width = 44
+          Alignment = taRightJustify
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          MaxLength = 2
+          NumbersOnly = True
+          ParentFont = False
+          TabOrder = 3
+          Text = '1'
+        end
+        object udMinute: TUpDown
+          Left = 388
+          Height = 28
+          Top = 72
+          Width = 17
+          Associate = edMinute
+          Max = 59
+          Min = 1
+          Position = 1
+          TabOrder = 4
+        end
+        object edHour: TEdit
+          Left = 208
+          Height = 28
+          Top = 72
+          Width = 44
+          Alignment = taRightJustify
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          MaxLength = 2
+          NumbersOnly = True
+          ParentFont = False
+          TabOrder = 1
+          Text = '1'
+        end
+        object udHour: TUpDown
+          Left = 252
+          Height = 28
+          Top = 72
+          Width = 17
+          Associate = edHour
+          Max = 23
+          Min = 1
+          Position = 1
+          TabOrder = 2
+        end
+        object edDay: TEdit
+          Left = 208
+          Height = 28
+          Top = 136
+          Width = 44
+          Alignment = taRightJustify
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          MaxLength = 2
+          NumbersOnly = True
+          ParentFont = False
+          TabOrder = 6
+          Text = '1'
+        end
+        object udDay: TUpDown
+          Left = 252
+          Height = 28
+          Top = 136
+          Width = 17
+          Associate = edDay
+          Max = 31
+          Min = 1
+          Position = 1
+          TabOrder = 7
+        end
+        object Label10: TLabel
+          Left = 280
+          Height = 20
+          Top = 72
+          Width = 56
+          AutoSize = False
+          Caption = 'Минута'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label13: TLabel
+          Left = 168
+          Height = 24
+          Top = 72
+          Width = 24
+          AutoSize = False
+          Caption = 'Час'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label17: TLabel
+          Left = 160
+          Height = 24
+          Top = 136
+          Width = 40
+          AutoSize = False
+          Caption = 'День'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label18: TLabel
+          Left = 280
+          Height = 20
+          Top = 136
+          Width = 56
+          AutoSize = False
+          Caption = 'Месяц'
+          Font.CharSet = RUSSIAN_CHARSET
+          Font.Height = -15
+          Font.Name = 'Trebuchet MS'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentColor = False
+          ParentFont = False
+        end
+      end
+    end
+  end
+  object bbtOk: TBitBtn
+    Left = 208
+    Height = 30
+    Top = 512
+    Width = 107
+    Caption = 'Ok'
+    Default = True
+    Font.CharSet = RUSSIAN_CHARSET
+    Font.Height = -15
+    Font.Name = 'Trebuchet MS'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Glyph.Data = {
+      C6070000424DC607000000000000360000002800000016000000160000000100
+      2000000000009007000064000000640000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00020000007B010301BB00000029000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000020000007E1F5320EA51C8
+      53FD000000C80000003000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000020000008118491BEB56C955FF7DD57CFF40AE3FFE0000
+      00CC000000370000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000030000
+      00831B4F1FEC50C450FF95CD94FFA1CEA1FF71C571FF43B345FE000000D10000
+      003E000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000003000000851F5121ED56C655FF7EC3
+      7EFF79B879FF76B676FF7FBC7FFF6DC46DFF4ABB4CFE000000D6000000460000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000400000088235825EE57C657FF6EBC6EFF67AF67FF62AC62FF61AC
+      61FF64AD64FF6BB26BFF65BC64FF4FBF51FF000000D90000004F000000000000
+      00000000000000000000000000000000000000000000000000000000008A2B6C
+      2FEF5ACA59FF58AF57FF51A451FF50A750FF55B354FF55B355FF53AF53FF4FA4
+      4FFF53A653FF59B658FF54C455FF000000DE0000005700000000000000000000
+      000000000000000000000000000000000000010201B14FB650FB56C455FF46A4
+      46FF45A344FF4FBA4EFF3B903CFB061C09E553C552FF49AE49FF43A043FF44A0
+      44FF4CAF4CFF56C757FF000300E1000000610000000000000000000000000000
+      0000000000000000000000000017000000B2429B43FB55C155FF55C155FF4299
+      43FA000000B400000069000000DF54C456FF4EB14DFF47A147FF46A146FF4DAE
+      4CFF57C856FF001100E40000006A000000000000000000000000000000000000
+      00000000000000000016000000AE49AB4AFA49AB4AFA000000B0000000180000
+      000000000050000000DA4FC051FF45AD45FF399A39FF389938FF3DA53DFF49C1
+      49FF001500E70000007300000001000000000000000000000000000000000000
+      000000000014000000AC000000AD000000150000000000000000000000000000
+      0045000000D687DB87FE84CE83FF75B974FF73B773FF78C378FF87DF86FF3F6A
+      41ED0000007C0000000200000000000000000000000000000000000000000000
+      00130000001300000000000000000000000000000000000000000000003B0000
+      00D2A0E7A2FEA0DDA0FF90C790FF8EC58EFF94CF94FFA8EEA7FF477749F00000
+      0085000000040000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000032000000CC93DE
+      95FE99DB99FF88C388FF85C085FF8DCB8DFFA5ECA5FF518755F20000008C0000
+      0006000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000002A000000C48DD58FFE9ADD
+      9AFF88C488FF85C085FF8CC98CFFA8EFA8FF6BAD6DF500000093000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000022000000BD87CE89FD9CDF9CFF89C5
+      89FF8AC68AFFA6ECA5FF87D18AFA020402A60000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000001B000000B57FC581FBA3E8A3FFA4EAA4FF71B2
+      72F9000000A40000001000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000016000000AD88D28AFA7BC17DF8000000A10000000E0000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000010010201A40001009D0000000C0000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000
+    }
+    OnClick = bbtOkClick
+    ParentFont = False
+    TabOrder = 1
+  end
+  object bbtCancel: TBitBtn
+    Left = 319
+    Height = 30
+    Top = 512
+    Width = 107
+    Cancel = True
+    Caption = 'Cancel'
+    Font.CharSet = RUSSIAN_CHARSET
+    Font.Height = -15
+    Font.Name = 'Trebuchet MS'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Glyph.Data = {
+      C6070000424DC607000000000000360000002800000016000000160000000100
+      2000000000009007000064000000640000000000000000000000FFFFFF00FFFF
+      FF00FFFFFF0000000042000001F10000004EFFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000004E0000
+      01F100000042FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00000000420000
+      00F900002DFE000000FB0000004EFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF000000004E000000FB00002DFE000000F90000
+      0042FFFFFF00FFFFFF00FFFFFF0000000042000000F900004CFE3333DEFF0000
+      5BFF000000FC0000004EFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF000000004E000000FC00005BFF3333DEFF00004CFE000000F900000042FFFF
+      FF0000000042000000F900004DFE5050D7FFCACAF6FF5A5AD8FF000058FF0000
+      00FC0000004EFFFFFF00FFFFFF00FFFFFF00FFFFFF000000004E000000FC0000
+      58FF5A5AD8FFCACAF6FF5050D7FF00004DFE000000F900000042000001F10000
+      2DFE1E1ED6FF9A9AE4FF8989D4FF8F8FDBFF4343D1FF00005AFF000000FC0000
+      004EFFFFFF00FFFFFF000000004E000000FC00005AFF4343D1FF8F8FDBFF8989
+      D4FF9A9AE4FF1E1ED6FF00002DFE000001F10000004E000000FB00005DFF2E2E
+      C8FF6363CCFF6060C6FF6969CFFF3030C9FF00005CFF000000FC0000004E0000
+      004E000000FC00005CFF3030C9FF6969CFFF6060C6FF6363CCFF2E2EC8FF0000
+      5DFF000000FB0000004EFFFFFF000000004E000000FC00005AFF1919C1FF3D3D
+      BEFF3D3DB9FF4444C1FF1F1FC3FF00005DFF000000FC000000FC00005DFF1F1F
+      C3FF4444C1FF3D3DB9FF3D3DBEFF1919C1FF00005AFF000000FC0000004EFFFF
+      FF00FFFFFF00FFFFFF000000004E000000FC00005CFF0707BBFF1717B0FF1818
+      ACFF1D1DB3FF0D0DBCFF000053FF000053FF0D0DBCFF1D1DB3FF1818ACFF1717
+      B0FF0707BBFF00005CFF000000FC0000004EFFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF000000004E000000FC00005EFF0000B7FF0000A7FF0000A3FF0000
+      A8FF0000AEFF0000AEFF0000A8FF0000A3FF0000A7FF0000B7FF00005EFF0000
+      00FC0000004EFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF000000004E000000FC00005FFF0000B9FF0000A9FF0000A4FF0000A4FF0000
+      A4FF0000A4FF0000A9FF0000B9FF00005FFF000000FC0000004EFFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+      004E000000FC000050FF0000AAFF0000A1FF0000A1FF0000A1FF0000A1FF0000
+      AAFF000050FF000000FC0000004EFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000004E000000FC3030
+      76FF2F2FBDFF2F2FB4FF2F2FB4FF2F2FB4FF2F2FB4FF2F2FBDFF303076FF0000
+      00FC0000004EFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF000000004E000000FC494992FF6464DAFF5F5FCAFF5F5F
+      C6FF5F5FC6FF5F5FC6FF5F5FC6FF5F5FCAFF6464DAFF494992FF000000FC0000
+      004EFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+      004E000000FC484891FF6060D8FF5858C7FF5757C3FF5858C7FF5A5ACCFF5A5A
+      CCFF5858C7FF5757C3FF5858C7FF6060D8FF484891FF000000FC0000004EFFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000004E000000FC484891FF6060
+      D8FF5858C7FF5757C3FF5858C7FF6060D8FF404083FF404083FF6060D8FF5858
+      C7FF5757C3FF5858C7FF6060D8FF484891FF000000FC0000004EFFFFFF00FFFF
+      FF00FFFFFF000000004E000000FC484891FF6060D8FF5858C7FF5757C3FF5858
+      C7FF6060D8FF464690FF000000FC000000FC464690FF6060D8FF5858C7FF5757
+      C3FF5858C7FF6060D8FF484891FF000000FC0000004EFFFFFF000000004E0000
+      00FB494995FF6060D8FF5858C7FF5757C3FF5858C7FF6060D8FF464690FF0000
+      00FC0000004E0000004E000000FC464690FF6060D8FF5858C7FF5757C3FF5858
+      C7FF6060D8FF494995FF000000FB0000004E000001F134345CFE6969EEFF5A5A
+      CCFF5757C3FF5858C7FF6060D8FF484891FF000000FC0000004EFFFFFF00FFFF
+      FF000000004E000000FC484891FF6060D8FF5858C7FF5757C3FF5A5ACCFF6969
+      EEFF34345CFE000001F100000042000000F9444486FE6060DAFF5A5ACCFF6060
+      D8FF484891FF000000FC0000004EFFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+      004E000000FC484891FF6060D8FF5A5ACCFF6060DAFF444486FE000000F90000
+      0042FFFFFF0000000042000000F9444486FE6969EEFF494995FF000000FC0000
+      004EFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000004E0000
+      00FC494995FF6969EEFF444486FE000000F900000042FFFFFF00FFFFFF00FFFF
+      FF0000000042000000F934345CFE000000FB0000004EFFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000004E000000FB3434
+      5CFE000000F900000042FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000
+      0042000001F10000004EFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000000004E000001F100000042FFFF
+      FF00FFFFFF00FFFFFF00
+    }
+    ModalResult = 2
+    ParentFont = False
+    TabOrder = 2
+  end
+  object dlgSelectDirectory: TSelectDirectoryDialog
+    Left = 472
+    Top = 176
+  end
+  object OpenDialog: TOpenDialog
+    Left = 472
+    Top = 120
+  end
+  object qrArchivators: TSQLQuery
+    FieldDefs = <>
+    Database = fmMain.SQLite
+    Transaction = fmMain.Transact
+    Params = <>
+    Macros = <>
+    Left = 472
+    Top = 16
+  end
+  object qrTasksEx: TSQLQuery
+    FieldDefs = <>
+    Database = fmMain.SQLite
+    Transaction = fmMain.Transact
+    Params = <>
+    Macros = <>
+    Left = 472
+    Top = 64
+  end
+  object ImageList: TImageList
+    Height = 22
+    Width = 22
+    Left = 472
+    Top = 232
+    Bitmap = {
+      4C7A030000001600000016000000EC0900000000000078DAED98795014571EC7
+      BD9298D5CD51497637D9AAC4236EAD1B77A3091A8DA636A6D444014B493804C4
+      033C0896082A1A0545237228A71C0EE70033C380DC9702028E824A1018E51218
+      90432E03080CC8CD777FAFD38323AB26C6EC3F5BE9AA4F353DAFDF67BEEFD7AF
+      BBDF60646434C1E8297C63A0D7AFBB417F88F6C3B4E7D033341861186F3229D3
+      D5D57DEB497DA96DF29E3D7B5E7B1CE4435F5F1FFAFBFB31303080C1C1410C0D
+      0D718408853030DA504B8E571EE73D74E850D9E1C3870788FEF17CADAF8BCACA
+      4A14171773DCBA750B454545282828C0E8E8283C3C3D478D4C8C8B29DBCBE3BD
+      3636365C1FB95C3ED687919F9F0FE6552814080C0A7C8492D252CE3B3232021F
+      3FDFD10DC68601E3BDD6D6D6A3CC97949484B8B838C4C4C4E0DCB973888A8A02
+      AB437D7D3D475D5D1D476D6D2D476B6B2B1A1B1BB93C469B36768DF75A5A5A8E
+      B07CCC191D1DCDF9A45229241209E76D6A6A42B03004019453457575351A1A1A
+      38E437E5D8B0D14839DEFBAD85C5F0F5BC3CCE19192141845804717818424382
+      A1BF410FADCD4D68696AE4686EBCCBD174B781A3B1A11EE5A525303236EC0AD9
+      FCF9547BFB099354DE6DDBB60DE7E4E4407AF614443B164162BE780CF1CE4F10
+      61BE640CF5360E6A6788B62F8478FBC261C98E45CD98306122F36ED9B2654826
+      9341726A3F72047B71AF241BF78AB31EC28E9FC8A5319A0A5321DAB6705895D7
+      C4C46430333313E21316C80FB3477D6E242A92DC9E09C5055FD4E546B1EC9D2A
+      AFA1A1E1405A5A1AC44737E3568C2BEA73225195E2F54C28CE7BA3263B1C52F3
+      25756AF75B7F724A0A2487F450713E00F557A4A8A6EFFFA554C49F8222D51B95
+      6941905A7C2A5779757474FA12121220D9A7851A59C44FDE74FF9F4571C10F15
+      09AE288F7144CDC5209425F930EF4595575B5BBB2F36361612CB15B843DEDAEC
+      B0FFEAAF38EF832ACA5495EC85CA4477DC8E75E67C2A98B7487A92CD19B1CABB
+      66CD9A5E762F88CD97A2262B94C6E483DB712E283B7702251147502CB1FD592A
+      A9C6B967F740BC63E1299577E5CA95BD1289989B8315891E900BF7A128D8EA99
+      28A50C99CE2683E1661AFBD5BCCAF09000482C96A134D29ECEDBF3CC9448EC90
+      6AA7DD23DAA6B155DD1BEAE78E8423BA34173D509E70FA99B99DE88638EB2F3A
+      C34D3F5EC79CB44D59B56A55B7FF5173445A2EC78563EB7F15A9F66BA9B68B1E
+      78197CB880F74E5BB66C598483E192A150330DFC1AC2CC3446434D3F1E74D69D
+      974EBED78889C40BC47B8406B1F8395844FC9D98CAE765EE29EC9878F93960FD
+      5F9CC03FCB00FCCEFF21279D9DD73AB838E1848B63D20927A765BF85D3C1C565
+      3E73B2ADB8B47458E51708046FFE16CE8ECE4EB47574E0F2D55CF80608409F5B
+      38B8385E62EDE339E3E79BFA8B9CF7EF73CE1BB46E114749E1E9EB8D1CF20F0F
+      0F8FB5B5D35ED9D383465ABFF0FD9EEA64E7B7B6B5212DF3220284C1108AC321
+      2F29E6D664CC77BFAB8B5C8DC3D7684DE3E17386CFEC32FFE79C6CCB945D8250
+      2262FDD140EB1CE66A6E690173B99DF1E45C279C1D028E393BACA47B7812BB8F
+      9FE4649B52A9C495BCABB855568AB6F636FC48B9D573F90ACE727BF2BC41BC4E
+      4C665EE652B9C73B6FDF514051538D6EAA19CD0324A624730E1F811F62126211
+      9F9C384C0CF1DE57D4DCD3F9CC938E3B3A2E507736D21AEF466121A2E3633997
+      28423C240C130EF9F90B063DBCBDDA03428270DAD37DECFA936316319B9841BC
+      A97AA6A99CD5944F354E41702097CD2FD01F678987D7C4099BCD4C655F6AAE0E
+      D233D07358FAD9D25DE4F81B3187F82B9FF7055603572F77393B9F65F0F2F3E1
+      1C76C7ED15BBAC2C9377EFB53AB7699BA99BD6FAB5FB35B5B50FCC9933C790FA
+      AD22BE203EE3794FCDF992AAB6AC16D636D68BCD76EEFC5CDF487FB58EAECE5A
+      3EC33F88F9C407FCF16CB5F1BE4BBCCDF327E255FEBDF3C85CE06BCD3E9FC65F
+      873FAAEDA7F1359BC23379DCDF931F37BFD4DC137926A9CE53F1FBF3F77F8BE3
+      9A192F121F11EF13139FD3F509114A5411834437D1433C200A0837E29D67CCE6
+      CA1C21BBB59015E4883259123A9A6A39CA2F27232BD811C1BBB5D877751186BF
+      C03997A839B57E6ECF8D4421BA7E6C42618A08E7CF1C44A8D55A845BAF4386AF
+      1D6EA54742D9DE8A82A4509C5E3F57497D92893F3CC1F912712778D79AD18EC6
+      3BB89916096FE385F0D4FF10DE461FC3D76411CE6E5E0CC19625106CFD142116
+      AB509193C28D41B85BBB9FFA063CC1EB7E5A676E2F3B2FDE69173CF4FE899863
+      5B719BFA76B6346068A01FFDBD4AB4D557E25AA417795720D87C39B2038FE33E
+      F5A1DCACF6CB1F738D7A0B92E93D9326E59C3EC61ADC789FB4955C8C84D84A13
+      E1965FA1EA7A3AE4172470D49CD94A9EE96ADE70A1D53A74DD6B848FC927F0D9
+      A8017FD3A5E495A2EADA0564FA1D4692D37694A44BC6BCBD9D6D883EF40D220F
+      ACC7395B03EE386CAF0ECBACAFE6AD96859D06BB56AC965CFDCCBF80D85A1352
+      9B75883EAC8BF8A386B8E06A31E6ED537622F17B13C4D1E7ACBDEA6A2A72233C
+      46593D79E75462A8F25A3A523D6DE047D72668C7E7DCF89833C6561F89C73722
+      D5C90C2D158563DE869B9791766A07521CB772EDF931F4DB333F134E5AB30AD4
+      6ADBDDDDD68C309A4BFE66CB10BA6B2522F6697339589FF3CE66682ECF1F7376
+      B5D4E18AE000B2CFEC41869B05D79EE57B00DD342FA9C60F78EF07EC1E50B6B7
+      40B46F1D9F7535A20EEA20DEDE10A98EA6A8CA4D1C7376B7D4225FF43DAE87D8
+      2237E0202EF95823C3DD0297FD6DA1A46C4E9AB33A78EF24A2BF3A3F8BE6BC2D
+      5F572D2E6B12D58F8DB5ABB5EEE1BB3A2D18F24827144638E087307BCECD7217
+      A786E04EA10CCEDAB3B3D4AE9B3C57EA8D9B345784342F23F6AD45AC9D3E921D
+      B6D038BFE5C69C17760C4551CE2889734359A227ED5DC97D9272DB41E6B717F5
+      7219F2A2FD46C865AFE6F5947C6730CCEA23B2D2E2BD064839B91517698C3FD6
+      14A3B7BD190FEEB742713104D51901284FF2823CCA0979A147901B648BBEEE0E
+      88F6EBF692EB2B35EF3B84B2343B0E6597E21EE63DF953DE5EF2A9B6CA8C10CE
+      C972174A7FCADB5C761DB72F278E520DF2C73F47E9D8C45DEF5FBD6C5E5C0AB0
+      E7EBBB0969A777A2B7E3A1B72CE52CE574E6FE27F043B83DCA3344E8A176D7AF
+      E7B17B62E6639F119A333324070D06D875ADCA4D4192C3569AB7A65C2D64BE7B
+      911BF81DAE0BED68EC47F103CD89E6F23C1ACB3D886D747B9D34677EFB94E7E4
+      746A1752EE9E8A9C642E87E2DA7914250890137404D7C2BE47797A38EEDE9471
+      F5ACCC4D1975D39DD7F334A7DAFB7EFACE257FD13FB96666BBD4D6B8EF467CE0
+      6843F1753CE86AE7B85B92871B094123E2831BFA8FAF9E55B6FCFD5757A8D63B
+      4F71BECEAF6916BD35ED8575EBE7BD7166FBE2B7B30FAD9CD1E4B07AC6D0F1D5
+      3307F62E7FB7C1F0A3B7B296CF7ED58716176C5DF525FFDB98F57BF929EE29FC
+      3AE7CFC4FBC402E2DF8426A14DACE07F677FC0AFCDDEE47F1F3F320FFE037286
+      0A8B
+    }
+  end
+  object ActionList: TActionList
+    Images = ImageList
+    Left = 472
+    Top = 288
+    object actSelectSource: TAction
+      Category = 'TaskEdit'
+      ImageIndex = 0
+      OnExecute = actSelectSourceExecute
+    end
+    object actSelectTarget: TAction
+      Category = 'TaskEdit'
+      ImageIndex = 0
+      OnExecute = actSelectTargetExecute
+    end
+    object actSelectBeforeBackup: TAction
+      Category = 'TaskEdit'
+      ImageIndex = 0
+      OnExecute = actSelectBeforeBackupExecute
+    end
+    object actSelectAfterBackup: TAction
+      Category = 'TaskEdit'
+      ImageIndex = 0
+      OnExecute = actSelectAfterBackupExecute
+    end
+    object actHelpFormat: TAction
+      Category = 'TaskEdit'
+      ImageIndex = 2
+      OnExecute = actHelpFormatExecute
+    end
+    object actTryFormat: TAction
+      Category = 'TaskEdit'
+      ImageIndex = 1
+      OnExecute = actTryFormatExecute
+    end
+  end
+end
