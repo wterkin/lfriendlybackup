@@ -95,7 +95,6 @@ type
   private
 
     moLog : TEasyLog;
-    //miLastID : Integer;
     moTaskExecuteQuery : TEasySQLite;
     moTasks : TEasySQLite;
     procedure createDatabaseIfNeeded();
@@ -107,6 +106,8 @@ type
 
     procedure reopenTables();
     function RusDayOfWeek(pdtDate : TDateTime = NullDate) : Integer;
+    procedure processError(psDesc, psDetail : String);
+    procedure processException(psDetail : String; poException : Exception);
   end;
 
 
@@ -187,7 +188,6 @@ const
         LongDayNames      : ('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
         TwoDigitYearCenturyWindow: 50;
       );
-
       csTimeStampMask  = 'yyyy/mm/dd hh:mm';
       csControlChar    = '.';
       csQuitFile       = csControlChar+'quit';
@@ -208,24 +208,22 @@ implementation
 {$R *.lfm}
 
 { TfmMain }
+// ToDo: Сделать логгирование ошибок!
 
 procedure TfmMain.FormActivate(Sender: TObject);
 var lsLogName : String;
     loIniMgr : TEasyIniManager;
 begin
 
-  OnActivate:=Nil;
-  dbgTasks.FocusColor:=clNavy; // * Синяя рамка выбранной ячейки
-  MainForm:=fmMain;
-  MainForm.Caption:=Format(csMainFormCaption,[csVersion, 'остановлен']);
+  OnActivate := Nil;
+  dbgTasks.FocusColor := clNavy; // * Синяя рамка выбранной ячейки
+  MainForm := fmMain;
+  MainForm.Caption := Format(csMainFormCaption,[csVersion, 'остановлен']);
   createDatabaseIfNeeded(); // * Создаем БД, если ее нет.
+  // *** Заведем объект выборки для грида
   moTasks := TEasySQLite.Create();
   moTasks.setup(SQLite, dsTasks);
-  //dbgTasks.DataSource := dsTasks;
   reopenTables();
-  //if dbgTasks.DataSource.DataSet.State <> dsBrowse then
-
-  //Caption := 'FAIL!!!!!!';
   // *** Прочитаем конфиг
   loIniMgr := TEasyIniManager.Create(getAppFolder + csIniFile);
   loIniMgr.read(fmMain);
@@ -233,7 +231,7 @@ begin
   FreeAndNil(loIniMgr);
   // *** Что там в командной строке?
   analizeCmdLine();
-  // *** Заводим пару объектов для выборок
+  // *** Заводим объект выборки задания
   moTaskExecuteQuery := TEasySQLite.Create();
   moTaskExecuteQuery.setup(SQLite);
   // *** Заведем лог
@@ -241,17 +239,17 @@ begin
   if FileExists(lsLogName) then
   begin
 
-    moLog:=TEasyLog.Load(lsLogName)
+    moLog := TEasyLog.Load(lsLogName)
 	end
 	else begin
 
-    moLog:=TEasyLog.Create(lsLogName);
+    moLog := TEasyLog.Create(lsLogName);
 	end;
 	moLog.WriteTimeStamp(csTimeStampMask);
   moLog.WriteLN(' started');
   moLog.Save;
   {$ifdef __DEBUG__}
-  MainForm.Caption:=MainForm.Caption+' [отладка]';
+  MainForm.Caption := MainForm.Caption+' [отладка]';
   moLog.WriteLN('debug mode on');
   {$endif}
   // *** Обновим файл флага работы
@@ -278,7 +276,6 @@ begin
   loIniMgr.write(fmMain.dbgTasks);
   FreeAndNil(loIniMgr);
   // *** Закроем соединение с базой
-  //qrTasks.Close;
   qrTaskExt.Close;
   FreeAndNil(moTaskExecuteQuery);
   FreeAndNil(moTasks);
@@ -290,18 +287,12 @@ procedure TfmMain.dbgTasksPrepareCanvas(sender: TObject; DataCol: Integer;
   Column: TColumn; AState: TGridDrawState);
 begin
 
-  // !!!!
   // *** Если последний запуск был успешен, отрисуем надпись другим цветом
   dbgTasks.Canvas.Font.Color:=iif(moTasks.integerField('flastrunresult')>0,
   clColorLastRunSuccessful, clColorLastRunUnSuccessful);
+  // *** Если задача активна, фон зальем белым, иначе сереньким
   dbgTasks.Canvas.Brush.Color:=iif(moTasks.integerField('fstatus')=2,
     clColorTaskActiveBkg, clColorTaskInActiveBkg)
-//
-//  dbgTasks.Canvas.Font.Color:=iif(qrTasks.FieldByName('flastrunresult').AsInteger>0,
-//    clColorLastRunSuccessful, clColorLastRunUnSuccessful);
-  // *** Если задача активна, фон зальем белым, иначе сереньким
-  //dbgTasks.Canvas.Brush.Color:=iif(qrTasks.FieldByName('fstatus').AsInteger=2,
-  //  clColorTaskActiveBkg, clColorTaskInActiveBkg)
 end;
 
 
@@ -309,7 +300,6 @@ procedure TfmMain.dbgTasksDblClick(Sender: TObject);
 begin
 
   moTasks.store();
-  //miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
   fmTaskEdit.viewRecord();
   reopenTables();
 end;
@@ -331,11 +321,11 @@ begin
 		  moLog.Save;
 	  end;
     // *** Остановим таймер
-    Timer.Enabled:=False;
+    Timer.Enabled := False;
     // *** Выставим на кнопку значок старта
-    actStart.ImageIndex:=ciIconStart;
+    actStart.ImageIndex := ciIconStart;
     // *** Выведем в заголовке состояние программы
-    MainForm.Caption:=Format(csMainFormCaption,[csVersion, 'остановлен']);
+    MainForm.Caption := Format(csMainFormCaption,[csVersion, 'остановлен']);
   end else
   begin
 
@@ -348,11 +338,11 @@ begin
 	    moLog.Save;
 	  end;
     // *** Запустим таймер
-    Timer.Enabled:=True;
+    Timer.Enabled := True;
     // *** Выставим на кнопку значок старта
-    actStart.ImageIndex:=ciIconStop;
+    actStart.ImageIndex := ciIconStop;
     // *** Выведем в заголовке состояние программы
-    MainForm.Caption:=Format(csMainFormCaption,[csVersion, 'работает.']);
+    MainForm.Caption := Format(csMainFormCaption,[csVersion, 'работает.']);
 	end;
 end;
 
@@ -365,16 +355,17 @@ begin
 
     // *** Запомним текущую запись
     moTasks.Store();
-    //miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
-    // *** Получим количество зарегистрированных архиваторов.
     initializeQuery(qrTaskExt,'select count(*) as acount from tblarchivators where fstatus>0', False);
     qrTaskExt.Open;
-    liCount:=qrTaskExt.FieldByName('acount').AsInteger;
+    liCount := qrTaskExt.FieldByName('acount').AsInteger;
     qrTaskExt.Close;
   except
+    on E : Exception do
+    begin
 
-    FatalError('Error!','Database request failed!');
-  end;
+      processException('Создание задачи привело к возникновению исключительной ситуации: ', E);
+		end;
+	end;
 
   // *** Если определен хоть один архиватор...
   if liCount>0 then
@@ -385,14 +376,13 @@ begin
 	end else
   begin
 
-    FatalError('Ошибка!','Добавьте сначала хоть один архиватор!');
+    processError('Ошибка!','В БД не определен ни один архиватор!');
 	end;
   reopenTables();
 end;
 
 
 procedure TfmMain.actDeleteTaskExecute(Sender: TObject);
-//var liID : Integer;
 begin
 
   if askYesOrNo('Задача будет удалена! Вы уверены?') then
@@ -400,21 +390,19 @@ begin
 
     try
 
-      //moTasks.store();
-      //liID:=qrTasks.FieldByName('ataskid').AsInteger;
       initializeQuery(qrTaskExt,'delete from tbltasks where id=:pid', False);
-      qrTaskExt.ParamByName('pid').AsInteger:=moTasks.integerField('ataskid');
+      qrTaskExt.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
       qrTaskExt.ExecSQL;
       Transact.Commit;
-      //moTasks.open();
-      //miLastID:=0;
       reopenTables();
     except
 
-      Transact.Rollback;
-      moLog.WriteLN('Error! Database request failed!');
-      moLog.Save;
-      FatalError('Error!','Database request failed!');
+      on E : Exception do
+      begin
+
+        processException('Удаление задачи привело к возникновению исключительной ситуации: ', E);
+        Transact.Rollback;
+  		end;
     end;
   end;
 end;
@@ -442,36 +430,28 @@ begin
 
     // *** Запомним текущую запись
     moTasks.store();
-    //miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
     // *** Запишем статус активности
     initializeQuery(qrTaskExt,'update tbltasks set "fstatus"=:pstatus where "id"=:pid', False);
     if moTasks.integerField('fstatus') = ciStatusInactive then
     begin
 
-      qrTaskExt.ParamByName('pstatus').AsInteger:=ciStatusActive;
+      qrTaskExt.ParamByName('pstatus').AsInteger := ciStatusActive;
     end else
     begin
 
-      qrTaskExt.ParamByName('pstatus').AsInteger:=ciStatusInActive;
+      qrTaskExt.ParamByName('pstatus').AsInteger := ciStatusInActive;
 		end;
-
-  //  if qrTasks.FieldByName('fstatus').AsInteger=ciStatusInactive then
-  //  begin
-  //
-  //    qrTaskExt.ParamByName('pstatus').AsInteger:=ciStatusActive;
-  //  end else
-  //  begin
-  //
-  //    qrTaskExt.ParamByName('pstatus').AsInteger:=ciStatusInActive;
-		//end;
-		qrTaskExt.ParamByName('pid').AsInteger:=moTasks.integerField('ataskid');
+		qrTaskExt.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
     qrTaskExt.ExecSQL;
     Transact.Commit;
     reopenTables();
   except
+    on E : Exception do
+    begin
 
-    Transact.Rollback;
-    FatalError('Error!','Database request failed!');
+      processException('Активация задачи привела к возникновению исключительной ситуации: ', E);
+      Transact.Rollback;
+		end;
   end;
 end;
 
@@ -507,7 +487,7 @@ end;
 procedure TfmMain.FormWindowStateChange(Sender: TObject);
 begin
 
-  if WindowState=wsMinimized then
+  if WindowState = wsMinimized then
   begin
 
     Hide;
@@ -535,7 +515,6 @@ end;
 procedure TfmMain.sbArchiversClick(Sender: TObject);
 begin
 
-  //miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
   moTasks.store();
   fmArchivators.ShowModal();
   reopenTables();
@@ -587,13 +566,13 @@ var lsLogName : String;
 begin
 
   //***** Начинается новый день -
-  if (HourOf(Now)=0) and (MinuteOf(Now)=0) then
+  if (HourOf(Now) = 0) and (MinuteOf(Now) = 0) then
   begin
 
     // *** Пересоздаем лог
     FreeAndNil(moLog);
-    lsLogName:=getAppFolder()+'logs/'+FormatDateTime('yyyymmdd',Now)+'.log';
-    moLog:=TEasyLog.Create(lsLogName);
+    lsLogName := getAppFolder() + 'logs/' + FormatDateTime('yyyymmdd',Now) + '.log';
+    moLog := TEasyLog.Create(lsLogName);
     moLog.WriteTimeStamp(csTimeStampMask);
     moLog.WriteLN(' started');
     {$ifdef __DEBUG__}
@@ -612,7 +591,6 @@ begin
     DateTimeToString(lsTime, 'hh:nn', Now());
     DateTimeToString(lsDate, 'dd.mm', Now());
     {$endif}
-    //miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
     moTasks.store();
     moTaskExecuteQuery.initialize(csSelectTask, 'ataskid');
     moTaskExecuteQuery.parameter('pdate', lsDate);
@@ -633,14 +611,16 @@ begin
       moLog.Writeln('loaded');
       moLog.Save;
       {$endif}
-      //qrTaskExec.Next;
       moTaskExecuteQuery.next();
     end;
     reopenTables();
 
   except
+    on E : Exception do
+    begin
 
-    FatalError('Error!','Database request failed!');
+      processException('Выборка задач для выполнения привело к возникновению исключительной ситуации: ', E);
+		end;
   end;
 
   //***** Проверим, не нужно ли завершить работу.
@@ -717,13 +697,13 @@ var lsDatabaseFullName : String;
     lblDabaseExists    : Boolean;
 begin
 
-  lsDatabaseFullName:=getAppFolder()+'DB\'+csDatabaseFileName;
-  lblDabaseExists:=FileExists(lsDatabaseFullName);
+  lsDatabaseFullName := getAppFolder()+'DB\'+csDatabaseFileName;
+  lblDabaseExists := FileExists(lsDatabaseFullName);
   try
 
-    SQLite.DatabaseName:=lsDatabaseFullName;
+    SQLite.DatabaseName := lsDatabaseFullName;
     SQLite.Open;
-    SQLite.Connected:=True;
+    SQLite.Connected := True;
     if not lblDabaseExists then
     begin
 
@@ -733,8 +713,11 @@ begin
       Transact.Commit;
     end;
   except
+    on E : Exception do
+    begin
 
-    FatalError('Ошибка открытия БД!', '');
+      processException('Создание базы данных привело к возникновению исключительной ситуации: ', E);
+		end;
 	end;
 end;
 
@@ -743,7 +726,7 @@ procedure TfmMain.analizeCmdLine;
 var loParams : TEasyParameters;
 begin
 
-  loParams:=TEasyParameters.Create();
+  loParams := TEasyParameters.Create();
   if loParams.isParam(csRunCmd) then
   begin
 
@@ -782,7 +765,7 @@ begin
   lsCmdLine := lsCmdLine + lsBackupName + ' ';
 
   //***** Папка или файл?
-  lsCmdLine:=lsCmdLine + moTaskExecuteQuery.stringField('fsourcefolder');
+  lsCmdLine := lsCmdLine + moTaskExecuteQuery.stringField('fsourcefolder');
 
   if not isEmpty(moTaskExecuteQuery.stringField('frunbeforebackup')) then
   begin
@@ -792,9 +775,9 @@ begin
   end;
 
   //***** Запускаем
-  fmMain.Cursor:=crHourGlass;
+  fmMain.Cursor := crHourGlass;
   EasyExec('cmd.exe',lsCmdLine,True,True);
-  fmMain.Cursor:=crDefault;
+  fmMain.Cursor := crDefault;
   // *** Отпишем в лог
   moLog.WriteTimeStamp(csTimeStampMask);
   moLog.WriteLN('task '+ moTaskExecuteQuery.stringField('fname') + ' executed');
@@ -819,7 +802,6 @@ begin
   end;
   moLog.Save;
   //***** Занесем в базу результат
-  //miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
   moTasks.store();
   liProcessedTaskID := moTaskExecuteQuery.integerField('ataskid');
   // **** К чему бы тут это?
@@ -828,18 +810,19 @@ begin
   try
 
     initializeQuery(qrTaskUpdate,csSQLUpdate, False);
-    qrTaskUpdate.ParamByName('pid').AsInteger:=liProcessedTaskID;
-    qrTaskUpdate.ParamByName('plastrunresult').AsInteger:=
-      iif(FileExists(lsBackupName),ciLastRunSuccessful,ciLastRunUnSuccessful);
-    qrTaskUpdate.ParamByName('plastrundate').AsDate:=DateOf(Now);
+    qrTaskUpdate.ParamByName('pid').AsInteger := liProcessedTaskID;
+    qrTaskUpdate.ParamByName('plastrunresult').AsInteger :=
+      iif(FileExists(lsBackupName), ciLastRunSuccessful, ciLastRunUnSuccessful);
+    qrTaskUpdate.ParamByName('plastrundate').AsDate := DateOf(Now);
     qrTaskUpdate.ExecSQL;
     Transact.Commit;
   except
+    on E : Exception do
+    begin
 
-    Transact.Rollback;
-    moLog.WriteLN('Error! Database request failed!');
-    moLog.Save;
-    FatalError('Error!','Database request failed!');
+      processException('Выполнение задачи привело к возникновению исключительной ситуации: ', E);
+      Transact.Rollback;
+		end;
   end;
   reopenTables();
 end;
@@ -862,13 +845,13 @@ begin
   if moTasks.integerField('fstatus') = ciStatusInactive then
   begin
 
-    actActivateTask.ImageIndex:=ciIconActivate;
-    actActivateTask.Hint:='Активировать задачу';
+    actActivateTask.ImageIndex := ciIconActivate;
+    actActivateTask.Hint := 'Активировать задачу';
   end else
   begin
 
     actActivateTask.ImageIndex:=ciIconDeActivate;
-    actActivateTask.Hint:='Деактивировать задачу';
+    actActivateTask.Hint := 'Деактивировать задачу';
   end;
 end;
 
@@ -884,52 +867,64 @@ begin
       moTasks.close();
 		end;
 
-		//if qrTasks.State<>dsInactive then
-  //  begin
-  //
-  //    qrTasks.Close;
-		//end;
     moTasks.initialize(csSQLSelectTasks, 'ataskid');
     moTasks.parameter('pstatus', ciStatusDeleted);
     moTasks.open();
     moTasks.reStore();
     AfterScroll();
-		//initializeQuery(qrTasks,csSQLSelectTasks);
-  //  qrTasks.ParamByName('pstatus').AsInteger:=ciStatusDeleted;
-  //  qrTasks.Open;
-  //  qrTasks.Locate('ataskid',miLastID{%H-}, []);
-  //  qrTasks.AfterScroll(qrTasks);
     // *** Разрешим / запретим кнопки в зависимости от состояния выборки
-    actEditTask.Enabled:=moTasks.Count()>0;
-    actDeleteTask.Enabled:=actEditTask.Enabled;
-    actRunTask.Enabled:=actEditTask.Enabled;
-    actActivateTask.Enabled:=actEditTask.Enabled;
+    actEditTask.Enabled := moTasks.Count()>0;
+    actDeleteTask.Enabled := actEditTask.Enabled;
+    actRunTask.Enabled := actEditTask.Enabled;
+    actActivateTask.Enabled := actEditTask.Enabled;
   except
 
-    FatalError('Error!','Database request failed!');
+    on E : Exception do
+    begin
+
+      processException('(пере)Открытие БД привело к возникновению исключительной ситуации: ', E);
+		end;
   end;
 end;
 
 
-function TfmMain.RusDayOfWeek(pdtDate: TDateTime): Integer;
+function TfmMain.RusDayOfWeek(pdtDate : TDateTime): Integer;
 var loDay : Integer;
 begin
 
-  if pdtDate=NullDate then
+  if pdtDate = NullDate then
   begin
 
-    pdtDate:=Now;
+    pdtDate := Now;
 	end;
-	loDay:=DayOfTheWeek(pdtDate);
-  if loDay=1 then
+	loDay := DayOfTheWeek(pdtDate);
+  if loDay = 1 then
   begin
 
-    Result:=7
+    Result := 7;
 	end else
   begin
 
-    Result:=loDay-1;
+    Result := loDay - 1;
 	end;
+end;
+
+
+procedure TfmMain.processError(psDesc, psDetail: String);
+begin
+
+  moLog.WriteLN(psDesc + ' ' + psDetail);
+  moLog.Save;
+  FatalError(psDesc, psDetail);
+end;
+
+
+procedure TfmMain.processException(psDetail: String; poException: Exception);
+begin
+
+  moLog.WriteLN(poException.Message + ' ' + psDetail);
+  moLog.Save;
+  FatalError(poException.Message, psDetail);
 end;
 
 
