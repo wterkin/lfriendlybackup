@@ -154,64 +154,64 @@ begin
 
   case cbPeriod.ItemIndex of
 
-    //***** Каждую минуту
+    // *** Каждую минуту
     ciPeriodEachMinute: begin
 
-      edMinute.Enabled:=False;
-      edHour.Enabled:=False;
-      cbWeekDay.Enabled:=False;
-      edDay.Enabled:=False;
-      edMonth.Enabled:=False;
+      edMinute.Enabled := False;
+      edHour.Enabled := False;
+      cbWeekDay.Enabled := False;
+      edDay.Enabled := False;
+      edMonth.Enabled := False;
     end;
 
-    //***** Каждый час
+    // *** Каждый час
     ciPeriodEachHour: begin
 
-      edMinute.Enabled:=True;
-      edHour.Enabled:=False;
-      cbWeekDay.Enabled:=False;
-      edDay.Enabled:=False;
-      edMonth.Enabled:=False;
+      edMinute.Enabled := True;
+      edHour.Enabled := False;
+      cbWeekDay.Enabled := False;
+      edDay.Enabled := False;
+      edMonth.Enabled := False;
     end;
 
     //***** Ежедневно
     ciPeriodEachDay: begin
 
-      edMinute.Enabled:=True;
-      edHour.Enabled:=True;
-      cbWeekDay.Enabled:=False;
-      edDay.Enabled:=False;
-      edMonth.Enabled:=False;
+      edMinute.Enabled := True;
+      edHour.Enabled := True;
+      cbWeekDay.Enabled := False;
+      edDay.Enabled := False;
+      edMonth.Enabled := False;
     end;
 
     //***** Еженедельно
     ciPeriodEachWeek: begin
 
-      edMinute.Enabled:=True;
-      edHour.Enabled:=True;
-      cbWeekDay.Enabled:=True;
-      edDay.Enabled:=False;
-      edMonth.Enabled:=False;
+      edMinute.Enabled := True;
+      edHour.Enabled := True;
+      cbWeekDay.Enabled := True;
+      edDay.Enabled := False;
+      edMonth.Enabled := False;
     end;
 
     //***** Ежемесячно
     ciPeriodEachMonth: begin
 
-      edMinute.Enabled:=True;
-      edHour.Enabled:=True;
-      cbWeekDay.Enabled:=False;
-      edDay.Enabled:=True;
-      edMonth.Enabled:=False;
+      edMinute.Enabled := True;
+      edHour.Enabled := True;
+      cbWeekDay.Enabled := False;
+      edDay.Enabled := True;
+      edMonth.Enabled := False;
     end;
 
     //***** Ежегодно
     ciPeriodEachYear: begin
 
-      edMinute.Enabled:=True;
-      edHour.Enabled:=True;
-      cbWeekDay.Enabled:=False;
-      edDay.Enabled:=True;
-      edMonth.Enabled:=True;
+      edMinute.Enabled := True;
+      edHour.Enabled := True;
+      cbWeekDay.Enabled := False;
+      edDay.Enabled := True;
+      edMonth.Enabled := True;
     end;
   end;
 end;
@@ -224,11 +224,11 @@ begin
   if cbSubject.ItemIndex = 0 then
   begin
 
-    lblSource.Caption:='Исходный каталог:';
+    lblSource.Caption := 'Исходный каталог:';
   end else
   begin
 
-    lblSource.Caption:='Исходный файл:';
+    lblSource.Caption := 'Исходный файл:';
 	end;
 end;
 
@@ -261,29 +261,33 @@ begin
 
     try
 
+      MainForm.moTasks.store();
       MainForm.Transact.EndTransaction;
       MainForm.Transact.StartTransaction;
 
       //***** Зажигаем! Let's rock!
-      if moMode=dmInsert then
+      if moMode = dmInsert then
       begin
 
-        initializeQuery(qrTasksEx,csSQLInsertTask,False);
+        initializeQuery(qrTasksEx, csSQLInsertTask, False);
       end
       else
       begin
 
-        initializeQuery(qrTasksEx,csSQLUpdateTask,False);
+        initializeQuery(qrTasksEx, csSQLUpdateTask, False);
       end;
       StoreData();
       qrTasksEx.ExecSQL;
       MainForm.Transact.Commit;
     except
+      on E : Exception do
+      begin
 
-      MainForm.Transact.Rollback;
-      FatalError('Error!','Database request failed!');
+        MainForm.processException('Изменение задачи привело к возникновению исключительной ситуации: ', E);
+        MainForm.Transact.Rollback;
+		  end;
     end;
-    ModalResult:=mrOk;
+    ModalResult := mrOk;
   end
 end;
 
@@ -297,7 +301,7 @@ begin
     if dlgSelectDirectory.Execute then
     begin
 
-      edSource.Text:=addSeparator(dlgSelectDirectory.FileName);
+      edSource.Text := addSeparator(dlgSelectDirectory.FileName);
 		end;
 	end else
   begin
@@ -305,7 +309,7 @@ begin
     if OpenDialog.Execute then
     begin
 
-      edSource.Text:=OpenDialog.FileName;
+      edSource.Text := OpenDialog.FileName;
 		end;
 	end;
 end;
@@ -317,7 +321,7 @@ begin
   if OpenDialog.Execute then
   begin
 
-    edRunBeforeBackup.Text:=OpenDialog.FileName;
+    edRunBeforeBackup.Text := OpenDialog.FileName;
 	end;
 end;
 
@@ -328,7 +332,7 @@ begin
   if OpenDialog.Execute then
   begin
 
-    edRunAfterBackup.Text:=OpenDialog.FileName;
+    edRunAfterBackup.Text := OpenDialog.FileName;
 	end;
 end;
 
@@ -346,7 +350,7 @@ begin
   if dlgSelectDirectory.Execute then
   begin
 
-    edTargetFolder.Text:=dlgSelectDirectory.FileName;
+    edTargetFolder.Text := dlgSelectDirectory.FileName;
 	end;
 end;
 
@@ -355,30 +359,31 @@ procedure TfmTaskEdit.actTryFormatExecute(Sender: TObject);
 var s : string;
 begin
 
-  s:=edTargetFormat.Text;
-  s:=ReplaceStr(s,'`','"');
-  s:=FormatDateTime( s ,Now, MyOwnFormatSettings);
-  Notify('',FormatDateTime( ReplaceStr( edTargetFormat.Text,'`','"') ,Now, MyOwnFormatSettings));
+  s := edTargetFormat.Text;
+  s := ReplaceStr(s, '`', '"');
+  s := FormatDateTime(s, Now, MyOwnFormatSettings);
+  Notify('', FormatDateTime(ReplaceStr( edTargetFormat.Text, '`', '"'), Now, MyOwnFormatSettings));
 end;
 
 
 procedure TfmTaskEdit.initData();
 begin
 
-  edName.Text:='';
-  edSource.Text:='';
-  edTargetFolder.Text:='';
-  edTargetFormat.Text:='`Name-`yyyy-mm-dd_hh-nn-ss';
-  edArchivatorOptions.Text:='';
-  cbPeriod.ItemIndex:=0;
-  udMinute.Position:=MinuteOf(Now);
-  udHour.Position:=HourOf(Now);
-  cbWeekDay.ItemIndex:=fmMain.RusDayOfWeek(Now)-1;
-  udDay.Position:=DayOf(Now);
-  udMonth.Position:=MonthOf(Now);
-  edRunBeforeBackup.Text:='';
-  edRunBeforeBackup.Text:='';
+  edName.Text := '';
+  edSource.Text := '';
+  edTargetFolder.Text := '';
+  edTargetFormat.Text := '`Name-`yyyy-mm-dd_hh-nn-ss';
+  edArchivatorOptions.Text := '';
+  cbPeriod.ItemIndex := 0;
+  udMinute.Position := MinuteOf(Now);
+  udHour.Position := HourOf(Now);
+  cbWeekDay.ItemIndex := fmMain.RusDayOfWeek(Now)-1;
+  udDay.Position := DayOf(Now);
+  udMonth.Position := MonthOf(Now);
+  edRunBeforeBackup.Text := '';
+  edRunBeforeBackup.Text := '';
   moLookup.fill();
+  MainForm.reopenTables();
 end;
 
 
@@ -388,20 +393,19 @@ begin
 
   lsTime := '';
   lsDate := '';
-  qrTasksEx.ParamByName('pname').AsString:=edName.Text;
-
-	qrTasksEx.ParamByName('psourcefolder').AsString:=edSource.Text;
+  qrTasksEx.ParamByName('pname').AsString := edName.Text;
+	qrTasksEx.ParamByName('psourcefolder').AsString := edSource.Text;
+  // Вот тут проверить, что edSource не пустой. а вообще в Validate проверять всё.
   if (cbSubject.ItemIndex = 0) and (edSource.Text[UTF8Length(edSource.Text)] <> DirectorySeparator) then
   begin
 
-  	qrTasksEx.ParamByName('psourcefolder').AsString:=addSeparator(edSource.Text);
+  	qrTasksEx.ParamByName('psourcefolder').AsString := addSeparator(edSource.Text);
 	end;
-  qrTasksEx.ParamByName('ptargetfolder').AsString:=edTargetFolder.Text;
-  qrTasksEx.ParamByName('ptargetfile').AsString:=edTargetFormat.Text;
-  qrTasksEx.ParamByName('parchivator').AsInteger:=moLookup.getIntKey();
-  qrTasksEx.ParamByName('parchivatoroptions').AsString:=edArchivatorOptions.Text;
-  qrTasksEx.ParamByName('pperiod').AsInteger:=cbPeriod.ItemIndex;
-
+  qrTasksEx.ParamByName('ptargetfolder').AsString := edTargetFolder.Text;
+  qrTasksEx.ParamByName('ptargetfile').AsString := edTargetFormat.Text;
+  qrTasksEx.ParamByName('parchivator').AsInteger := moLookup.getIntKey();
+  qrTasksEx.ParamByName('parchivatoroptions').AsString := edArchivatorOptions.Text;
+  qrTasksEx.ParamByName('pperiod').AsInteger := cbPeriod.ItemIndex;
   if edHour.Enabled then
   begin
 
@@ -411,7 +415,6 @@ begin
 
     lsTime := '00';
 	end;
-
   if edMinute.Enabled then
   begin
 
@@ -421,7 +424,6 @@ begin
 
     lsTime := lsTime+ ':00';
 	end;
-
   if edDay.Enabled then
   begin
 
@@ -431,7 +433,6 @@ begin
 
     lsDate := '00';
 	end;
-
   if edMonth.Enabled then
   begin
 
@@ -441,8 +442,8 @@ begin
 
     lsDate := lsDate + '.00'
 	end;
-  qrTasksEx.ParamByName('ptime').AsString:=lsTime;
-  qrTasksEx.ParamByName('pdate').AsString:=lsDate;
+  qrTasksEx.ParamByName('ptime').AsString := lsTime;
+  qrTasksEx.ParamByName('pdate').AsString := lsDate;
   if cbWeekDay.Enabled then
   begin
 
@@ -452,12 +453,12 @@ begin
 
     qrTasksEx.ParamByName('pdayofweek').AsInteger := 0;
 	end;
-  qrTasksEx.ParamByName('prunbeforebackup').AsString:=edRunBeforeBackup.Text;
-  qrTasksEx.ParamByName('prunafterbackup').AsString:=edRunBeforeBackup.Text;
-  if moMode=dmUpdate then
+  qrTasksEx.ParamByName('prunbeforebackup').AsString := edRunBeforeBackup.Text;
+  qrTasksEx.ParamByName('prunafterbackup').AsString := edRunBeforeBackup.Text;
+  if moMode = dmUpdate then
   begin
 
-    qrTasksEx.ParamByName('pid').AsInteger:=miID;
+    qrTasksEx.ParamByName('pid').AsInteger := miID;
   end;
 end;
 
@@ -465,32 +466,31 @@ end;
 procedure TfmTaskEdit.loadData();
 begin
 
-  edName.Text:=MainForm.qrTasks.FieldByName('fname').AsString;
-  edSource.Text:=MainForm.qrTasks.FieldByName('fsourcefolder').AsString;
+  edName.Text := MainForm.moTasks.StringField('fname');
+  edSource.Text := MainForm.moTasks.StringField('fsourcefolder');
 
   cbSubject.ItemIndex:=0;
   if (Length(edSource.Text) > 0) and
      (edSource.Text[UTF8Length(edSource.Text)] <> DirectorySeparator) then
   begin
 
-    cbSubject.ItemIndex:=1;
+    cbSubject.ItemIndex := 1;
   end
   else
   begin
 
-    cbSubject.ItemIndex:=0;
+    cbSubject.ItemIndex := 0;
   end;
+  edTargetFolder.Text := MainForm.moTasks.StringField('ftargetfolder');
+  edTargetFormat.Text := MainForm.moTasks.StringField('ftargetfile');
+  edArchivatorOptions.Text := MainForm.moTasks.StringField('farchivatoroptions');
+  cbPeriod.ItemIndex := MainForm.moTasks.IntegerField('fperiod');
 
-  edTargetFolder.Text:=MainForm.qrTasks.FieldByName('ftargetfolder').AsString;
-  edTargetFormat.Text:=MainForm.qrTasks.FieldByName('ftargetfile').AsString;
-  edArchivatorOptions.Text:=MainForm.qrTasks.FieldByName('farchivatoroptions').AsString;
-  cbPeriod.ItemIndex:=MainForm.qrTasks.FieldByName('fperiod').AsInteger;
-
-  edMinute.Enabled:=False;
-  edHour.Enabled:=False;
-  cbWeekDay.Enabled:=False;
-  edDay.Enabled:=False;
-  edMonth.Enabled:=False;
+  edMinute.Enabled := False;
+  edHour.Enabled := False;
+  cbWeekDay.Enabled := False;
+  edDay.Enabled := False;
+  edMonth.Enabled := False;
   case cbPeriod.ItemIndex of
 
     ciPeriodEachMinute: begin
@@ -498,46 +498,46 @@ begin
     end;
     ciPeriodEachHour: begin
 
-      edMinute.Enabled:=True;
-      udMinute.Position:=StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
+      edMinute.Enabled := True;
+      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
     end;
     ciPeriodEachDay: begin
 
-      edMinute.Enabled:=True;
-      udMinute.Position:=StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
-      edHour.Enabled:=True;
-      udHour.Position:=StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 1, 2), 0);
+      edMinute.Enabled := True;
+      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
+      edHour.Enabled := True;
+      udHour.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 1, 2), 0);
     end;
     ciPeriodEachWeek: begin
 
-      edMinute.Enabled:=True;
-      udMinute.Position:=StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
+      edMinute.Enabled := True;
+      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
       edHour.Enabled:=True;
-      udHour.Position:=StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 1, 2), 0);
-      cbWeekDay.ItemIndex:=MainForm.qrTasks.FieldByName('fdayofweek').AsInteger-1;
+      udHour.Position:=StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 1, 2), 0);
+      cbWeekDay.ItemIndex:=MainForm.moTasks.IntegerField('fdayofweek')-1;
     end;
     ciPeriodEachMonth:begin
 
-      edMinute.Enabled:=True;
-      udMinute.Position:=StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
-      edHour.Enabled:=True;
-      udHour.Position:=StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 1, 2), 0);
-      edDay.Enabled:=True;
-      udDay.Position:=StrToIntDef(Copy(MainForm.qrTasks.FieldByName('fdate').AsString, 1, 2), 0);
+      edMinute.Enabled := True;
+      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
+      edHour.Enabled := True;
+      udHour.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 1, 2), 0);
+      edDay.Enabled := True;
+      udDay.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('fdate'), 1, 2), 0);
     end;
     ciPeriodEachYear:begin
 
-      edMinute.Enabled:=True;
-      udMinute.Position:=StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
-      edHour.Enabled:=True;
-      udHour.Position:=StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 1, 2), 0);
-      edDay.Enabled:=True;
-      udDay.Position:=StrToIntDef(Copy(MainForm.qrTasks.FieldByName('fdate').AsString, 1, 2), 0);
-      edMonth.Enabled:=True;
-      udMonth.Position:=StrToIntDef(Copy(MainForm.qrTasks.FieldByName('fdate').AsString, 4, 2), 0);
+      edMinute.Enabled := True;
+      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
+      edHour.Enabled := True;
+      udHour.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 1, 2), 0);
+      edDay.Enabled := True;
+      udDay.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('fdate'), 1, 2), 0);
+      edMonth.Enabled := True;
+      udMonth.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('fdate'), 4, 2), 0);
     end;
   end;
-  edRunBeforeBackup.Text:=MainForm.qrTasks.FieldByName('frunafterbackup').AsString;
+  edRunBeforeBackup.Text := MainForm.moTasks.StringField('frunafterbackup');
   moLookup.fill();
   moLookup.setKey(miArchivatorId);
 end;
@@ -546,16 +546,16 @@ end;
 function TfmTaskEdit.validateData(): Boolean;
 begin
 
-  result:=cbArchivator.ItemIndex >= 0;
+  result := cbArchivator.ItemIndex >= 0;
 end;
 
 
 procedure TfmTaskEdit.viewRecord();
 begin
 
-  moMode:=dmUpdate;
-  miID:=MainForm.qrTasks.FieldByName('ataskid').AsInteger;
-  miArchivatorID:=MainForm.qrTasks.FieldByName('farchivator').AsInteger;
+  moMode := dmUpdate;
+  miID:=MainForm.moTasks.IntegerField('ataskid');
+  miArchivatorID:=MainForm.moTasks.IntegerField('farchivator');
   loadData();
   cbPeriodChange(nil);
   ShowModal;
@@ -565,7 +565,7 @@ end;
 procedure TfmTaskEdit.appendRecord();
 begin
 
-  moMode:=dmInsert;
+  moMode := dmInsert;
   initData();
   cbPeriodChange(nil);
   ShowModal;

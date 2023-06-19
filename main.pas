@@ -96,7 +96,6 @@ type
 
     moLog : TEasyLog;
     moTaskExecuteQuery : TEasySQLite;
-    moTasks : TEasySQLite;
     procedure createDatabaseIfNeeded();
     procedure analizeCmdLine();
     procedure processTask();
@@ -104,6 +103,7 @@ type
     procedure AfterScroll();
   public
 
+    moTasks : TEasySQLite;
     procedure reopenTables();
     function RusDayOfWeek(pdtDate : TDateTime = NullDate) : Integer;
     procedure processError(psDesc, psDetail : String);
@@ -367,6 +367,7 @@ begin
 		end;
 	end;
 
+  reopenTables();
   // *** Если определен хоть один архиватор...
   if liCount>0 then
   begin
@@ -378,7 +379,6 @@ begin
 
     processError('Ошибка!','В БД не определен ни один архиватор!');
 	end;
-  reopenTables();
 end;
 
 

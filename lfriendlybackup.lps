@@ -10,7 +10,7 @@
         <IsPartOfProject Value="True"/>
         <TopLine Value="15"/>
         <CursorPos X="41" Y="26"/>
-        <UsageCount Value="72"/>
+        <UsageCount Value="75"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -22,7 +22,7 @@
         <EditorIndex Value="3"/>
         <TopLine Value="80"/>
         <CursorPos X="24" Y="164"/>
-        <UsageCount Value="72"/>
+        <UsageCount Value="75"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit>
@@ -36,7 +36,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="72"/>
+        <UsageCount Value="75"/>
       </Unit>
       <Unit>
         <Filename Value="formathelp.pas"/>
@@ -47,7 +47,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="72"/>
+        <UsageCount Value="75"/>
       </Unit>
       <Unit>
         <Filename Value="main.pas"/>
@@ -55,15 +55,14 @@
         <ComponentName Value="fmMain"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="906"/>
-        <CursorPos X="7" Y="909"/>
-        <FoldState Value=" TCFEK TJt51c T3le0l427 pkQnf061 pjTjf0C3]ITlA083 PiFiD0,"/>
-        <UsageCount Value="72"/>
+        <TopLine Value="159"/>
+        <CursorPos X="8" Y="162"/>
+        <FoldState Value=" TCFEK T3le0l416 pkUnG08213 pjJmb0{8123 PdlB0R"/>
+        <UsageCount Value="75"/>
         <Bookmarks Count="3">
           <Item0 Y="122" ID="9"/>
-          <Item1 X="18" Y="561" ID="2"/>
+          <Item1 X="18" Y="564" ID="2"/>
           <Item2 X="2" Y="396" ID="1"/>
         </Bookmarks>
         <Loaded Value="True"/>
@@ -75,10 +74,12 @@
         <ComponentName Value="fmTaskEdit"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="20"/>
-        <CursorPos X="5" Y="22"/>
-        <UsageCount Value="72"/>
+        <TopLine Value="377"/>
+        <CursorPos X="83" Y="395"/>
+        <FoldState Value=" T3kM0:31621 PkVoD0x"/>
+        <UsageCount Value="75"/>
         <Bookmarks Count="1">
           <Item0 X="8" Y="494" ID="6"/>
         </Bookmarks>
@@ -89,9 +90,10 @@
         <Filename Value="..\tlib5\tsqlite.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="4"/>
-        <TopLine Value="137"/>
-        <CursorPos X="3" Y="143"/>
-        <UsageCount Value="29"/>
+        <TopLine Value="46"/>
+        <CursorPos Y="114"/>
+        <FoldState Value=" T3i20532317 PidkF0*"/>
+        <UsageCount Value="32"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -106,8 +108,8 @@
         <Filename Value="..\tlib5\tlookup.pas"/>
         <EditorIndex Value="10"/>
         <TopLine Value="34"/>
-        <CursorPos X="40" Y="62"/>
-        <UsageCount Value="35"/>
+        <CursorPos X="20" Y="46"/>
+        <UsageCount Value="37"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -115,7 +117,7 @@
         <EditorIndex Value="9"/>
         <TopLine Value="131"/>
         <CursorPos X="7" Y="135"/>
-        <UsageCount Value="35"/>
+        <UsageCount Value="37"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -135,7 +137,7 @@
         <Filename Value="..\tlib5\tdb.pas"/>
         <EditorIndex Value="8"/>
         <CursorPos X="11" Y="16"/>
-        <UsageCount Value="31"/>
+        <UsageCount Value="33"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -143,14 +145,14 @@
         <EditorIndex Value="7"/>
         <TopLine Value="143"/>
         <CursorPos Y="157"/>
-        <UsageCount Value="30"/>
+        <UsageCount Value="32"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="..\tlib5\tapp.pas"/>
         <EditorIndex Value="6"/>
         <CursorPos X="30" Y="26"/>
-        <UsageCount Value="30"/>
+        <UsageCount Value="32"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -165,129 +167,130 @@
         <EditorIndex Value="5"/>
         <TopLine Value="265"/>
         <CursorPos X="5" Y="279"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="22"/>
         <Loaded Value="True"/>
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
       <Position>
         <Filename Value="..\tlib5\tsqlite.pas"/>
-        <Caret Line="60" TopLine="38"/>
+        <Caret Line="114" TopLine="46"/>
       </Position>
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="892" TopLine="752"/>
+        <Caret Line="866" Column="27" TopLine="739"/>
       </Position>
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="228" Column="29" TopLine="211"/>
+        <Caret Line="843" TopLine="739"/>
       </Position>
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="226" Column="35" TopLine="211"/>
-      </Position>
-      <Position>
-        <Filename Value="..\tlib5\tsqlite.pas"/>
-        <Caret Line="93" Column="10" TopLine="41"/>
+        <Caret Line="845" TopLine="739"/>
       </Position>
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="226" TopLine="211"/>
-      </Position>
-      <Position>
-        <Filename Value="..\tlib5\tsqlite.pas"/>
-        <Caret Line="89" Column="39" TopLine="42"/>
-      </Position>
-      <Position>
-        <Filename Value="..\tlib5\tsqlite.pas"/>
-        <Caret Line="56" Column="25" TopLine="40"/>
-      </Position>
-      <Position>
-        <Filename Value="..\tlib5\tsqlite.pas"/>
-        <Caret Line="60" Column="32" TopLine="40"/>
-      </Position>
-      <Position>
-        <Filename Value="..\tlib5\tsqlite.pas"/>
-        <Caret Line="57" TopLine="40"/>
-      </Position>
-      <Position>
-        <Filename Value="..\tlib5\tsqlite.pas"/>
-        <Caret Line="60" Column="17" TopLine="41"/>
-      </Position>
-      <Position>
-        <Filename Value="..\tlib5\tsqlite.pas"/>
-        <Caret Line="56" TopLine="41"/>
-      </Position>
-      <Position>
-        <Filename Value="..\tlib5\tsqlite.pas"/>
-        <Caret Line="57" TopLine="41"/>
-      </Position>
-      <Position>
-        <Filename Value="..\tlib5\tsqlite.pas"/>
-        <Caret Line="139" Column="21" TopLine="105"/>
-      </Position>
-      <Position>
-        <Filename Value="..\tlib5\tsqlite.pas"/>
-        <Caret Line="32" Column="40" TopLine="13"/>
+        <Caret Line="853" TopLine="739"/>
       </Position>
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="110" Column="76" TopLine="83"/>
+        <Caret Line="854" TopLine="739"/>
       </Position>
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="895" Column="5" TopLine="190"/>
+        <Caret Line="856" TopLine="739"/>
       </Position>
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="364" Column="15" TopLine="285"/>
+        <Caret Line="876" TopLine="862"/>
       </Position>
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="376" Column="15" TopLine="353"/>
+        <Caret Line="877" TopLine="862"/>
       </Position>
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="400" TopLine="376"/>
+        <Caret Line="878" TopLine="862"/>
       </Position>
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="906" Column="33" TopLine="725"/>
+        <Caret Line="879" TopLine="862"/>
       </Position>
       <Position>
         <Filename Value="main.pas"/>
+        <Caret Line="862" TopLine="847"/>
       </Position>
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="362" Column="16" TopLine="285"/>
+        <Caret Line="888" TopLine="874"/>
       </Position>
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="364" Column="25" TopLine="349"/>
+        <Caret Line="372" TopLine="358"/>
       </Position>
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="362" Column="11" TopLine="349"/>
+        <Caret Line="376" TopLine="358"/>
       </Position>
       <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="363" Column="21" TopLine="308"/>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="564" TopLine="548"/>
       </Position>
       <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="379" Column="5" TopLine="352"/>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="566" TopLine="548"/>
       </Position>
       <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="403" Column="43" TopLine="381"/>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="567" TopLine="548"/>
       </Position>
       <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="365" Column="22" TopLine="352"/>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="568" TopLine="548"/>
       </Position>
       <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="110" Column="74" TopLine="96"/>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="564" Column="15" TopLine="547"/>
+      </Position>
+      <Position>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="570" Column="16" TopLine="548"/>
+      </Position>
+      <Position>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="467" Column="18" TopLine="369"/>
+      </Position>
+      <Position>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="566" Column="10" TopLine="544"/>
+      </Position>
+      <Position>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="567" TopLine="545"/>
+      </Position>
+      <Position>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="568" TopLine="546"/>
+      </Position>
+      <Position>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="98" Column="15" TopLine="86"/>
+      </Position>
+      <Position>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="385" Column="13" TopLine="368"/>
+      </Position>
+      <Position>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="566" TopLine="553"/>
+      </Position>
+      <Position>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="385" Column="25" TopLine="373"/>
+      </Position>
+      <Position>
+        <Filename Value="taskedit.pas"/>
+        <Caret Line="259" TopLine="218"/>
       </Position>
     </JumpHistory>
     <RunParams>
@@ -312,7 +315,7 @@
   <Debugging>
     <Watches>
       <Item>
-        <Expression Value="qrTasks.State"/>
+        <Expression Value="MainForm.moTasks.moQuery.State"/>
       </Item>
     </Watches>
   </Debugging>
