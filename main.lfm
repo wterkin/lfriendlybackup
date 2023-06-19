@@ -303,11 +303,6 @@ object fmMain: TfmMain
         Precision = -1
       end    
       item
-        Name = 'fminute'
-        DataType = ftInteger
-        Precision = -1
-      end    
-      item
         Name = 'ftime'
         DataType = ftFixedWideChar
         Precision = -1
@@ -315,11 +310,6 @@ object fmMain: TfmMain
       end    
       item
         Name = 'fdayofweek'
-        DataType = ftInteger
-        Precision = -1
-      end    
-      item
-        Name = 'fdayofmonth'
         DataType = ftInteger
         Precision = -1
       end    
@@ -413,7 +403,6 @@ object fmMain: TfmMain
     Left = 344
   end
   object dsTasks: TDataSource
-    DataSet = qrTasks
     Left = 392
   end
   object Timer: TTimer
@@ -928,13 +917,5 @@ object fmMain: TfmMain
     Params = <>
     Macros = <>
     Left = 648
-  end
-  object qrTaskExec: TSQLQuery
-    FieldDefs = <>
-    Database = SQLite
-    Transaction = Transact
-    Params = <>
-    Macros = <>
-    Left = 584
   end
 end

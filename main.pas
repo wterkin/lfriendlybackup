@@ -57,7 +57,6 @@ type
     miActivate: TMenuItem;
     Panel1: TPanel;
     pmState: TPopupMenu;
-		qrTaskExec: TSQLQuery;
     sbArchivers: TSpeedButton;
     sbCreateTask: TSpeedButton;
     sbChange: TSpeedButton;
@@ -96,12 +95,14 @@ type
   private
 
     moLog : TEasyLog;
-    miLastID : Integer;
+    //miLastID : Integer;
     moTaskExecuteQuery : TEasySQLite;
+    moTasks : TEasySQLite;
     procedure createDatabaseIfNeeded();
     procedure analizeCmdLine();
     procedure processTask();
     procedure refreshRunningFile();
+    procedure AfterScroll();
   public
 
     procedure reopenTables();
@@ -132,7 +133,7 @@ const
         '               TASK."fstatus",'#13+
         '               ARC."fname",'#13+
         '               ARC."fextension",'#13+
-        '               ARC."fpackpath",'#13+ // ???
+        '               ARC."fpackpath",'#13+
         '               ARC."fpackoptions",'#13+
         '               case TASK."fstatus" when 2 then ''Активна'' else ''Неактивна'' end as astatus'#13+
         '          from tbltasks TASK'#13+
@@ -191,13 +192,13 @@ const
       csControlChar    = '.';
       csQuitFile       = csControlChar+'quit';
       csRunningFile    = csControlChar+'iamrunning';
-      csIniFile        = 'yabackup.ini';
-      csVersion        = 'ver. 2.0';
+      csIniFile        = 'lfriendlybackup.ini';
+      csVersion        = 'ver. 2.0.1';
       ciIconStart      = 6;
       ciIconStop       = 7;
       ciIconDeactivate = 9;
       ciIconActivate   = 10;
-      {define __DEBUG__}
+      {$define __DEBUG__}
 var
   fmMain   : TfmMain;
   MainForm : TfmMain;
@@ -218,7 +219,13 @@ begin
   MainForm:=fmMain;
   MainForm.Caption:=Format(csMainFormCaption,[csVersion, 'остановлен']);
   createDatabaseIfNeeded(); // * Создаем БД, если ее нет.
+  moTasks := TEasySQLite.Create();
+  moTasks.setup(SQLite, dsTasks);
+  //dbgTasks.DataSource := dsTasks;
   reopenTables();
+  //if dbgTasks.DataSource.DataSet.State <> dsBrowse then
+
+  //Caption := 'FAIL!!!!!!';
   // *** Прочитаем конфиг
   loIniMgr := TEasyIniManager.Create(getAppFolder + csIniFile);
   loIniMgr.read(fmMain);
@@ -226,10 +233,11 @@ begin
   FreeAndNil(loIniMgr);
   // *** Что там в командной строке?
   analizeCmdLine();
+  // *** Заводим пару объектов для выборок
   moTaskExecuteQuery := TEasySQLite.Create();
   moTaskExecuteQuery.setup(SQLite);
   // *** Заведем лог
-  lsLogName:=getAppFolder()+'logs/' + FormatDateTime('yyyymmdd',Now)+'.log';
+  lsLogName := getAppFolder() + 'logs/' + FormatDateTime('yyyymmdd',Now) + '.log';
   if FileExists(lsLogName) then
   begin
 
@@ -270,9 +278,10 @@ begin
   loIniMgr.write(fmMain.dbgTasks);
   FreeAndNil(loIniMgr);
   // *** Закроем соединение с базой
-  qrTasks.Close;
+  //qrTasks.Close;
   qrTaskExt.Close;
   FreeAndNil(moTaskExecuteQuery);
+  FreeAndNil(moTasks);
   SQLite.Close();
 end;
 
@@ -281,19 +290,26 @@ procedure TfmMain.dbgTasksPrepareCanvas(sender: TObject; DataCol: Integer;
   Column: TColumn; AState: TGridDrawState);
 begin
 
+  // !!!!
   // *** Если последний запуск был успешен, отрисуем надпись другим цветом
-  dbgTasks.Canvas.Font.Color:=iif(qrTasks.FieldByName('flastrunresult').AsInteger>0,
-    clColorLastRunSuccessful, clColorLastRunUnSuccessful);
-  // *** Если задача активна, фон зальем белым, иначе сереньким
-  dbgTasks.Canvas.Brush.Color:=iif(qrTasks.FieldByName('fstatus').AsInteger=2,
+  dbgTasks.Canvas.Font.Color:=iif(moTasks.integerField('flastrunresult')>0,
+  clColorLastRunSuccessful, clColorLastRunUnSuccessful);
+  dbgTasks.Canvas.Brush.Color:=iif(moTasks.integerField('fstatus')=2,
     clColorTaskActiveBkg, clColorTaskInActiveBkg)
+//
+//  dbgTasks.Canvas.Font.Color:=iif(qrTasks.FieldByName('flastrunresult').AsInteger>0,
+//    clColorLastRunSuccessful, clColorLastRunUnSuccessful);
+  // *** Если задача активна, фон зальем белым, иначе сереньким
+  //dbgTasks.Canvas.Brush.Color:=iif(qrTasks.FieldByName('fstatus').AsInteger=2,
+  //  clColorTaskActiveBkg, clColorTaskInActiveBkg)
 end;
 
 
 procedure TfmMain.dbgTasksDblClick(Sender: TObject);
 begin
 
-  miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
+  moTasks.store();
+  //miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
   fmTaskEdit.viewRecord();
   reopenTables();
 end;
@@ -348,7 +364,8 @@ begin
   try
 
     // *** Запомним текущую запись
-    miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
+    moTasks.Store();
+    //miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
     // *** Получим количество зарегистрированных архиваторов.
     initializeQuery(qrTaskExt,'select count(*) as acount from tblarchivators where fstatus>0', False);
     qrTaskExt.Open;
@@ -375,7 +392,7 @@ end;
 
 
 procedure TfmMain.actDeleteTaskExecute(Sender: TObject);
-var liID : Integer;
+//var liID : Integer;
 begin
 
   if askYesOrNo('Задача будет удалена! Вы уверены?') then
@@ -383,12 +400,14 @@ begin
 
     try
 
-      liID:=qrTasks.FieldByName('ataskid').AsInteger;
+      //moTasks.store();
+      //liID:=qrTasks.FieldByName('ataskid').AsInteger;
       initializeQuery(qrTaskExt,'delete from tbltasks where id=:pid', False);
-      qrTaskExt.ParamByName('pid').AsInteger:=liID;
+      qrTaskExt.ParamByName('pid').AsInteger:=moTasks.integerField('ataskid');
       qrTaskExt.ExecSQL;
       Transact.Commit;
-      miLastID:=0;
+      //moTasks.open();
+      //miLastID:=0;
       reopenTables();
     except
 
@@ -422,10 +441,11 @@ begin
   try
 
     // *** Запомним текущую запись
-    miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
+    moTasks.store();
+    //miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
     // *** Запишем статус активности
     initializeQuery(qrTaskExt,'update tbltasks set "fstatus"=:pstatus where "id"=:pid', False);
-    if qrTasks.FieldByName('fstatus').AsInteger=ciStatusInactive then
+    if moTasks.integerField('fstatus') = ciStatusInactive then
     begin
 
       qrTaskExt.ParamByName('pstatus').AsInteger:=ciStatusActive;
@@ -434,7 +454,17 @@ begin
 
       qrTaskExt.ParamByName('pstatus').AsInteger:=ciStatusInActive;
 		end;
-		qrTaskExt.ParamByName('pid').AsInteger:=miLastId;
+
+  //  if qrTasks.FieldByName('fstatus').AsInteger=ciStatusInactive then
+  //  begin
+  //
+  //    qrTaskExt.ParamByName('pstatus').AsInteger:=ciStatusActive;
+  //  end else
+  //  begin
+  //
+  //    qrTaskExt.ParamByName('pstatus').AsInteger:=ciStatusInActive;
+		//end;
+		qrTaskExt.ParamByName('pid').AsInteger:=moTasks.integerField('ataskid');
     qrTaskExt.ExecSQL;
     Transact.Commit;
     reopenTables();
@@ -488,10 +518,6 @@ end;
 procedure TfmMain.qrTasksAfterScroll(DataSet: TDataSet);
 begin
 
-  actEditTask.Enabled:=qrTasks.RecordCount>0;
-  actDeleteTask.Enabled:=qrTasks.RecordCount>0;
-  actRunTask.Enabled:=qrTasks.RecordCount>0;
-  actActivateTask.Enabled:=qrTasks.RecordCount>0;
   if qrTasks.FieldByName('fstatus').AsInteger=ciStatusInactive then
   begin
 
@@ -509,7 +535,8 @@ end;
 procedure TfmMain.sbArchiversClick(Sender: TObject);
 begin
 
-  miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
+  //miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
+  moTasks.store();
   fmArchivators.ShowModal();
   reopenTables();
 end;
@@ -557,7 +584,6 @@ const csSelectTask =
 {$endregion}
 var lsLogName : String;
     lsDate, lsTime : String;
-    liID : Integer;
 begin
 
   //***** Начинается новый день -
@@ -586,7 +612,8 @@ begin
     DateTimeToString(lsTime, 'hh:nn', Now());
     DateTimeToString(lsDate, 'dd.mm', Now());
     {$endif}
-    miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
+    //miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
+    moTasks.store();
     moTaskExecuteQuery.initialize(csSelectTask, 'ataskid');
     moTaskExecuteQuery.parameter('pdate', lsDate);
     moTaskExecuteQuery.parameter('ptime', lsTime);
@@ -602,14 +629,13 @@ begin
 
       {$ifdef __DEBUG__}
       moLog.WriteTimeStamp('yyyy.MM.dd hh:mm');
-      moLog.Write(qrTaskExec.FieldByName('fname').AsString);
+      moLog.Write(moTaskExecuteQuery.StringField('fname'));
       moLog.Writeln('loaded');
       moLog.Save;
       {$endif}
       //qrTaskExec.Next;
       moTaskExecuteQuery.next();
     end;
-    qrTaskExec.Close;
     reopenTables();
 
   except
@@ -793,8 +819,10 @@ begin
   end;
   moLog.Save;
   //***** Занесем в базу результат
-  miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
+  //miLastID:=qrTasks.FieldByName('ataskid').AsInteger;
+  moTasks.store();
   liProcessedTaskID := moTaskExecuteQuery.integerField('ataskid');
+  // **** К чему бы тут это?
   Transact.EndTransaction;
   Transact.StartTransaction;
   try
@@ -828,21 +856,54 @@ begin
 end;
 
 
+procedure TfmMain.AfterScroll;
+begin
+
+  if moTasks.integerField('fstatus') = ciStatusInactive then
+  begin
+
+    actActivateTask.ImageIndex:=ciIconActivate;
+    actActivateTask.Hint:='Активировать задачу';
+  end else
+  begin
+
+    actActivateTask.ImageIndex:=ciIconDeActivate;
+    actActivateTask.Hint:='Деактивировать задачу';
+  end;
+end;
+
+
 procedure TfmMain.reopenTables;
 begin
 
   try
 
-    if qrTasks.State<>dsInactive then
+    if not moTasks.isClosed() then
     begin
 
-      qrTasks.Close;
+      moTasks.close();
 		end;
-		initializeQuery(qrTasks,csSQLSelectTasks);
-    qrTasks.ParamByName('pstatus').AsInteger:=ciStatusDeleted;
-    qrTasks.Open;
-    qrTasks.Locate('ataskid',miLastID{%H-}, []);
-    qrTasks.AfterScroll(qrTasks);
+
+		//if qrTasks.State<>dsInactive then
+  //  begin
+  //
+  //    qrTasks.Close;
+		//end;
+    moTasks.initialize(csSQLSelectTasks, 'ataskid');
+    moTasks.parameter('pstatus', ciStatusDeleted);
+    moTasks.open();
+    moTasks.reStore();
+    AfterScroll();
+		//initializeQuery(qrTasks,csSQLSelectTasks);
+  //  qrTasks.ParamByName('pstatus').AsInteger:=ciStatusDeleted;
+  //  qrTasks.Open;
+  //  qrTasks.Locate('ataskid',miLastID{%H-}, []);
+  //  qrTasks.AfterScroll(qrTasks);
+    // *** Разрешим / запретим кнопки в зависимости от состояния выборки
+    actEditTask.Enabled:=moTasks.Count()>0;
+    actDeleteTask.Enabled:=actEditTask.Enabled;
+    actRunTask.Enabled:=actEditTask.Enabled;
+    actActivateTask.Enabled:=actEditTask.Enabled;
   except
 
     FatalError('Error!','Database request failed!');

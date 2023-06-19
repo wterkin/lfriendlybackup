@@ -4,3 +4,5 @@ DB/
 backup/ 
 lib/ 
 ppas.bat 
+*.exe
+*.dbg
