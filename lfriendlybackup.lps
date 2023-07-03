@@ -10,7 +10,7 @@
         <IsPartOfProject Value="True"/>
         <TopLine Value="15"/>
         <CursorPos X="41" Y="26"/>
-        <UsageCount Value="79"/>
+        <UsageCount Value="80"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -19,11 +19,10 @@
         <ComponentName Value="fmArchivators"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
-        <TopLine Value="169"/>
-        <CursorPos X="16" Y="180"/>
-        <UsageCount Value="79"/>
+        <TopLine Value="114"/>
+        <CursorPos X="24" Y="151"/>
+        <UsageCount Value="80"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit>
@@ -37,7 +36,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="79"/>
+        <UsageCount Value="80"/>
       </Unit>
       <Unit>
         <Filename Value="formathelp.pas"/>
@@ -48,7 +47,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="79"/>
+        <UsageCount Value="80"/>
       </Unit>
       <Unit>
         <Filename Value="main.pas"/>
@@ -56,11 +55,12 @@
         <ComponentName Value="fmMain"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="871"/>
-        <CursorPos X="12" Y="883"/>
-        <FoldState Value=" TCEEK TJjT5T T3oE0d0221421111 piXtE08023 PVie0x"/>
-        <UsageCount Value="79"/>
+        <TopLine Value="694"/>
+        <CursorPos X="36" Y="713"/>
+        <FoldState Value=" TCEEK TJjT5T T3oE0d022142112 pkbtI085 PiNie0W"/>
+        <UsageCount Value="80"/>
         <Bookmarks Count="3">
           <Item0 Y="121" ID="9"/>
           <Item1 X="18" Y="578" ID="2"/>
@@ -79,7 +79,7 @@
         <TopLine Value="553"/>
         <CursorPos X="10" Y="574"/>
         <FoldState Value=" T3kM0:316111]3 Pl4qg0_"/>
-        <UsageCount Value="79"/>
+        <UsageCount Value="80"/>
         <Bookmarks Count="1">
           <Item0 X="8" Y="497" ID="6"/>
         </Bookmarks>
@@ -92,7 +92,7 @@
         <EditorIndex Value="4"/>
         <TopLine Value="113"/>
         <CursorPos X="6" Y="134"/>
-        <UsageCount Value="36"/>
+        <UsageCount Value="37"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>

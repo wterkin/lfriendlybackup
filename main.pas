@@ -674,39 +674,43 @@ end;
 
 
 procedure TfmMain.createDatabaseIfNeeded;
-const csSQLCreateTableArchivators =
-        'create table "tblarchivators" ('#13+
-        '    "id" integer primary key asc on conflict abort'+
-        '         autoincrement not null on conflict abort '+
-        '         unique on conflict abort,'#13+
-        '    "fname" nchar(32) not null on conflict abort,'#13+
-        '    "fpackpath" nchar(255) not null on conflict abort,'#13+
-        '    "fpackoptions" nchar(128) not null on conflict abort,'#13+
-        '    "funpackpath" nchar(255) not null on conflict abort,'#13+
-        '    "funpackoptions" nchar(128) not null on conflict abort,'#13+
-        '    "fextension" nchar(8) not null on conflict abort,'#13+
-        '    "fstatus" integer not null on conflict abort default(1)'#13+
-        ');';
-     csSQLCreateTableTasks =
-       'create table "tbltasks"('#13+
-       '  "id" integer primary key asc on conflict abort'+
-       '       autoincrement not null on conflict abort'+
-       '       unique on conflict abort,'#13+
-       '  "fname" nchar(128) not null on conflict abort,'#13+
-       '  "fsourcefolder" nchar(510) not null on conflict abort,'#13+
-       '  "ftargetfolder" nchar(510) not null on conflict abort,'#13+
-       '  "ftargetfile" nchar(510) not null on conflict abort,'#13+
-       '  "farchivator" integer not null on conflict abort,'#13+
-       '  "farchivatoroptions" nchar(510) not null on conflict abort,'#13+
-       '  "fperiod" integer not null on conflict abort,'#13+
-       '  "ftime" nchar(64),'#13+
-       '  "fdayofweek" integer not null on conflict abort,'#13+
-       '  "fdate" nchar(64), '#13+
-       '  "flastrundate" integer, '#13+
-       '  "flastrunresult" integer, '#13+
-       '  "frunafterbackup" nchar(510), '#13+
-       '  "frunbeforebackup" nchar(510), '#13+
-       '  "fstatus" integer not null on conflict abort default(1)'#13+
+const csSQLCreateScript =
+        'create domain tid as integer not null;'#13+
+        'create domain tshortstr as varchar(64);'#13+
+        'create domain tnormalstr as varchar(128);'#13+
+        'create domain tlongstr as varchar(256);'#13+
+        'create domain thugestr as varchar(512);'#13+
+        'create domain tinteger as integer;'#13+
+        ''#13+
+        ''#13+
+        'set term !!;'#13+
+        'create table tblarchivators ('#13+
+        '    id tid,'#13+
+        '    fname tshortstr,'#13+
+        '    fpackpath tlongstr,'#13+
+        '    fpackoptions tnormalstr,'#13+
+        '    funpackpath tlongstr,'#13+
+        '    funpackoptions tnormalstr,'#13+
+        '    fextension tshortstr,'#13+
+        '    fstatus tinteger not null'#13+
+        ')!!'#13+
+        'create table tbltasks('#13+
+       '  id tid,'#13+
+       '  fname tnormalstr not null,'#13+
+       '  fsourcefolder thugestr not null,'#13+
+       '  ftargetfolder thugestr not null,'#13+
+       '  ftargetfile thugestr not null,'#13+
+       '  farchivator tinteger not null,'#13+
+       '  farchivatoroptions thugestr not null,'#13+
+       '  fperiod tinteger not null,'#13+
+       '  ftime tshortstr,'#13+
+       '  fdayofweek tinteger not null,'#13+
+       '  fdate tshortstr, '#13+
+       '  flastrundate tinteger,'#13+
+       '  flastrunresult tinteger,'#13+
+       '  frunafterbackup thugestr, '#13+
+       '  frunbeforebackup thugestr, '#13+
+       '  fstatus tinteger not null'#13+
        '  );';
 
 var lsDatabaseFullName : String;
