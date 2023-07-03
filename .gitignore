@@ -8,3 +8,4 @@ ppas.bat
 *.dbg
 .iamrunning
 *.log
+link*.res

@@ -6,7 +6,6 @@ object fmMain: TfmMain
   Caption = 'LBackupMaker'
   ClientHeight = 195
   ClientWidth = 961
-  OnActivate = FormActivate
   OnClose = FormClose
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown

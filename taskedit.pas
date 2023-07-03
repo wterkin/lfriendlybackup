@@ -261,7 +261,7 @@ begin
 
     try
 
-      MainForm.moTasks.store();
+      //MainForm.moTasks.store();
       //MainForm.Transact.EndTransaction;
       //MainForm.Transact.StartTransaction;
 
@@ -277,10 +277,10 @@ begin
         initializeQuery(qrTasksEx, csSQLUpdateTask, False);
       end;
       StoreData();
-      MainForm.moTasks.store();
+      //MainForm.moTasks.store();
       qrTasksEx.ExecSQL;
       MainForm.Transact.Commit;
-      MainForm.moTasks.refresh();
+      //MainForm.moTasks.refresh();
     except
       on E : Exception do
       begin
@@ -384,9 +384,9 @@ begin
   udMonth.Position := MonthOf(Now);
   edRunBeforeBackup.Text := '';
   edRunAfterBackup.Text := '';
-  MainForm.moTasks.store();
+  //MainForm.moTasks.store();
   moLookup.fill();
-  MainForm.moTasks.refresh();
+  //MainForm.moTasks.refresh();
 end;
 
 
@@ -468,7 +468,7 @@ end;
 
 procedure TfmTaskEdit.loadData();
 begin
-
+  {
   edName.Text := MainForm.moTasks.StringField('fname');
   edSource.Text := MainForm.moTasks.StringField('fsourcefolder');
 
@@ -546,6 +546,7 @@ begin
   moLookup.fill();
   moLookup.setKey(miArchivatorId);
   MainForm.moTasks.Refresh();
+  }
 end;
 
 
@@ -569,8 +570,8 @@ procedure TfmTaskEdit.viewRecord();
 begin
 
   moMode := dmUpdate;
-  miID:=MainForm.moTasks.IntegerField('ataskid');
-  miArchivatorID:=MainForm.moTasks.IntegerField('farchivator');
+  // !!! miID:=MainForm.moTasks.IntegerField('ataskid');
+  // !!! miArchivatorID:=MainForm.moTasks.IntegerField('farchivator');
   loadData();
   cbPeriodChange(nil);
   ShowModal;

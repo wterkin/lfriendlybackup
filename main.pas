@@ -83,7 +83,6 @@ type
     procedure dbgTasksDblClick(Sender: TObject);
     procedure dbgTasksPrepareCanvas({%H-}sender: TObject; {%H-}DataCol: Integer;
       {%H-}Column: TColumn; {%H-}AState: TGridDrawState);
-    procedure FormActivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var {%H-}CloseAction: TCloseAction);
 		procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
@@ -95,7 +94,7 @@ type
   private
 
     moLog : TEasyLog;
-    moTaskExecuteQuery : TEasySQLite;
+    //moTaskExecuteQuery : TEasySQLite;
     procedure createDatabaseIfNeeded();
     procedure analizeCmdLine();
     procedure processTask();
@@ -103,7 +102,7 @@ type
     procedure AfterScroll();
   public
 
-    moTasks : TEasySQLite;
+    //moTasks : TEasySQLite;
     procedure reopenTables();
     function RusDayOfWeek(pdtDate : TDateTime = NullDate) : Integer;
     procedure processError(psDesc, psDetail : String);
@@ -217,58 +216,6 @@ implementation
 { TfmMain }
 // ToDo: Сделать логгирование ошибок!
 
-procedure TfmMain.FormActivate(Sender: TObject);
-var lsLogName : String;
-    loIniMgr : TEasyIniManager;
-begin
-
-  OnActivate := Nil;
-  //dbgTasks.FocusColor := clNavy; // * Синяя рамка выбранной ячейки
-  //MainForm := fmMain;
-  //MainForm.Caption := Format(csMainFormCaption,[csVersion, 'остановлен']);
-  //createDatabaseIfNeeded(); // * Создаем БД, если ее нет.
-  // *** Заведем объект выборки для грида
-  //moTasks := TEasySQLite.Create();
-  //moTasks.setup(SQLite, dsTasks);
-  //moTasks.initialize(csSQLSelectTasks, 'ataskid');
-  //moTasks.parameter('pstatus', ciStatusInactive);
-  //reopenTables();
-  //// *** Прочитаем конфиг
-  //loIniMgr := TEasyIniManager.Create(getAppFolder + csIniFile);
-  //loIniMgr.read(fmMain);
-  //loIniMgr.read(fmMain.dbgTasks);
-  //FreeAndNil(loIniMgr);
-  // *** Что там в командной строке?
-  //analizeCmdLine();
-  //// *** Заводим объект выборки задания
-  //moTaskExecuteQuery := TEasySQLite.Create();
-  //moTaskExecuteQuery.setup(SQLite);
-  // *** Заведем лог
- // lsLogName := getAppFolder() + 'logs/' + FormatDateTime('yyyymmdd',Now) + '.log';
- // if FileExists(lsLogName) then
- // begin
- //
- //   moLog := TEasyLog.Load(lsLogName)
-	//end
-	//else begin
- //
- //   moLog := TEasyLog.Create(lsLogName);
-	//end;
-	//moLog.WriteTimeStamp(csTimeStampMask);
- // moLog.WriteLN(' started');
- // moLog.Save;
-  //{$ifdef __DEBUG__}
-  //MainForm.Caption := MainForm.Caption+' [отладка]';
-  //moLog.WriteLN('debug mode on');
-  //{$endif}
-  // *** Обновим файл флага работы
-  refreshRunningFile();
-  {$ifndef __DEBUG__}
-  Hide;
-  {$endif}
-end;
-
-
 procedure TfmMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 var loIniMgr : TEasyIniManager;
 begin
@@ -286,13 +233,16 @@ begin
   FreeAndNil(loIniMgr);
   // *** Закроем соединение с базой
   qrTaskExt.Close;
-  FreeAndNil(moTaskExecuteQuery);
-  FreeAndNil(moTasks);
-  SQLite.Close();
+  //FreeAndNil(moTaskExecuteQuery);
+  //FreeAndNil(moTasks);
+  //SQLite.Close();\
+  IBC.Close();
 end;
 
 
 procedure TfmMain.FormCreate(Sender: TObject);
+var lsLogName : String;
+    loIniMgr : TEasyIniManager;
 begin
 
   inherited;
@@ -343,19 +293,21 @@ procedure TfmMain.dbgTasksPrepareCanvas(sender: TObject; DataCol: Integer;
   Column: TColumn; AState: TGridDrawState);
 begin
 
+  {!!!
   // *** Если последний запуск был успешен, отрисуем надпись другим цветом
   dbgTasks.Canvas.Font.Color:=iif(moTasks.integerField('flastrunresult')>0,
   clColorLastRunSuccessful, clColorLastRunUnSuccessful);
   // *** Если задача активна, фон зальем белым, иначе сереньким
   dbgTasks.Canvas.Brush.Color:=iif(moTasks.integerField('fstatus')=2,
     clColorTaskActiveBkg, clColorTaskInActiveBkg)
+  }
 end;
 
 
 procedure TfmMain.dbgTasksDblClick(Sender: TObject);
 begin
 
-  moTasks.store();
+  //moTasks.store();
   fmTaskEdit.viewRecord();
   reopenTables();
 end;
@@ -411,7 +363,7 @@ begin
   try
 
     // *** Запомним текущую запись
-    moTasks.Store();
+    //moTasks.Store();
     initializeQuery(qrTaskExt,'select count(*) as acount from tblarchivators where fstatus>0', False);
     qrTaskExt.Open;
     liCount := qrTaskExt.FieldByName('acount').AsInteger;
@@ -451,7 +403,7 @@ begin
     try
 
       initializeQuery(qrTaskExt,'delete from tbltasks where id=:pid', False);
-      qrTaskExt.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
+      // !!! qrTaskExt.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
       qrTaskExt.ExecSQL;
       Transact.Commit;
       reopenTables();
@@ -489,9 +441,10 @@ begin
   try
 
     // *** Запомним текущую запись
-    moTasks.store();
+    //moTasks.store();
     // *** Запишем статус активности
     initializeQuery(qrTaskExt,'update tbltasks set "fstatus"=:pstatus where "id"=:pid', False);
+    {!!!
     if moTasks.integerField('fstatus') = ciStatusInactive then
     begin
 
@@ -501,7 +454,8 @@ begin
 
       qrTaskExt.ParamByName('pstatus').AsInteger := ciStatusInActive;
 		end;
-		qrTaskExt.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
+    }
+		//!!! qrTaskExt.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
     qrTaskExt.ExecSQL;
     Transact.Commit;
     reopenTables();
@@ -575,7 +529,7 @@ end;
 procedure TfmMain.sbArchiversClick(Sender: TObject);
 begin
 
-  moTasks.store();
+  //moTasks.store();
   fmArchivators.ShowModal();
   reopenTables();
 end;
@@ -651,7 +605,8 @@ begin
     DateTimeToString(lsTime, 'hh:nn', Now());
     DateTimeToString(lsDate, 'dd.mm', Now());
     {$endif}
-    moTasks.store();
+    //moTasks.store();
+    {!!!
     moTaskExecuteQuery.initialize(csSelectTask, 'ataskid');
     moTaskExecuteQuery.parameter('pdate', lsDate);
     moTaskExecuteQuery.parameter('ptime', lsTime);
@@ -675,7 +630,7 @@ begin
     end;
     moTasks.refresh();
     //reopenTables();
-
+    }
   except
     on E : Exception do
     begin
@@ -758,20 +713,18 @@ var lsDatabaseFullName : String;
     lblDabaseExists    : Boolean;
 begin
 
-  lsDatabaseFullName := getAppFolder()+'DB\'+csDatabaseFileName;
-  lblDabaseExists := FileExists(lsDatabaseFullName);
+  IBC.DatabaseName := getAppFolder()+'DB\'+csDatabaseFileName;
   try
 
-    SQLite.DatabaseName := lsDatabaseFullName;
-    SQLite.Open;
-    SQLite.Connected := True;
-    if not lblDabaseExists then
+    if not FileExists(IBC.DatabaseName) then
     begin
 
-      Transact.StartTransaction;
-      SQLite.ExecuteDirect(csSQLCreateTableArchivators);
-      SQLite.ExecuteDirect(csSQLCreateTableTasks);
-      Transact.Commit;
+      IBC.CreateDB();
+      IBC.Open();
+      //Transact.StartTransaction;
+      //SQLite.ExecuteDirect(csSQLCreateTableArchivators);
+      //SQLite.ExecuteDirect(csSQLCreateTableTasks);
+      //Transact.Commit;
     end;
   except
     on E : Exception do
@@ -810,7 +763,7 @@ var lsCmdLine,
     lsTargetFolder : String;
     liProcessedTaskID : Integer;
 begin
-
+  {!!!
   //***** Соберем строку параметров упаковщика
   lsCmdLine := '/C ' + moTaskExecuteQuery.stringField('fpackpath') + ' ' +
                        moTaskExecuteQuery.stringField('fpackoptions') + ' '+
@@ -886,6 +839,7 @@ begin
 		end;
   end;
   reopenTables();
+  }
 end;
 
 
@@ -902,7 +856,7 @@ end;
 
 procedure TfmMain.AfterScroll;
 begin
-
+  {!!!
   if moTasks.integerField('fstatus') = ciStatusInactive then
   begin
 
@@ -914,6 +868,7 @@ begin
     actActivateTask.ImageIndex:=ciIconDeActivate;
     actActivateTask.Hint := 'Деактивировать задачу';
   end;
+  }
 end;
 
 
@@ -922,10 +877,10 @@ begin
 
   try
 
-    moTasks.refresh();
+    //moTasks.refresh();
     AfterScroll();
     // *** Разрешим / запретим кнопки в зависимости от состояния выборки
-    actEditTask.Enabled := moTasks.Count()>0;
+    // !!! actEditTask.Enabled := moTasks.Count()>0;
     actDeleteTask.Enabled := actEditTask.Enabled;
     actRunTask.Enabled := actEditTask.Enabled;
     actActivateTask.Enabled := actEditTask.Enabled;
