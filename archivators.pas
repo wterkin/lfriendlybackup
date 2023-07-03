@@ -147,7 +147,7 @@ begin
         initializeQuery(qrArchEx, csDeleteArchiver);
         qrArchEx.ParamByName('pid').AsInteger:=liID;
         qrArchEx.ExecSQL;
-        fmMain.Transact.Commit;
+        //fmMain.Transact.Commit;
       end else
       begin
 
@@ -155,7 +155,7 @@ begin
       end;
     except
 
-      fmMain.Transact.Rollback;
+      //fmMain.Transact.Rollback;
       FatalError('Error!','Database request failed!');
     end;
   end;

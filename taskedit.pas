@@ -279,14 +279,14 @@ begin
       StoreData();
       //MainForm.moTasks.store();
       qrTasksEx.ExecSQL;
-      MainForm.Transact.Commit;
+      //MainForm.Transact.Commit;
       //MainForm.moTasks.refresh();
     except
       on E : Exception do
       begin
 
         MainForm.processException('Изменение задачи привело к возникновению исключительной ситуации: ', E);
-        MainForm.Transact.Rollback;
+        //MainForm.Transact.Rollback;
 		  end;
     end;
     ModalResult := mrOk;

@@ -68,10 +68,12 @@ type
     qrTasks: TSQLQuery;
     qrTaskExt: TSQLQuery;
 		qrTaskUpdate: TSQLQuery;
-		SQLTransaction1: TSQLTransaction;
+		scrCreate: TSQLScript;
+		trCreate: TSQLTransaction;
+		trsTasksExt: TSQLTransaction;
+		trTasks: TSQLTransaction;
     StatusBar1: TStatusBar;
     Timer: TTimer;
-    Transact: TSQLTransaction;
     TrayIcon: TTrayIcon;
 		procedure actActivateTaskExecute(Sender: TObject);
     procedure actCreateTaskExecute(Sender: TObject);
@@ -405,7 +407,7 @@ begin
       initializeQuery(qrTaskExt,'delete from tbltasks where id=:pid', False);
       // !!! qrTaskExt.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
       qrTaskExt.ExecSQL;
-      Transact.Commit;
+      //Transact.Commit;
       reopenTables();
     except
 
@@ -413,7 +415,7 @@ begin
       begin
 
         processException('Удаление задачи привело к возникновению исключительной ситуации: ', E);
-        Transact.Rollback;
+        //Transact.Rollback;
   		end;
     end;
   end;
@@ -457,14 +459,14 @@ begin
     }
 		//!!! qrTaskExt.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
     qrTaskExt.ExecSQL;
-    Transact.Commit;
+    //Transact.Commit;
     reopenTables();
   except
     on E : Exception do
     begin
 
       processException('Активация задачи привела к возникновению исключительной ситуации: ', E);
-      Transact.Rollback;
+      //Transact.Rollback;
 		end;
   end;
 end;
@@ -674,6 +676,7 @@ end;
 
 
 procedure TfmMain.createDatabaseIfNeeded;
+{$region 'SQL'}
 const csSQLCreateScript =
         'create domain tid as integer not null;'#13+
         'create domain tshortstr as varchar(64);'#13+
@@ -681,62 +684,75 @@ const csSQLCreateScript =
         'create domain tlongstr as varchar(256);'#13+
         'create domain thugestr as varchar(512);'#13+
         'create domain tinteger as integer;'#13+
-        ''#13+
-        ''#13+
         'set term !!;'#13+
         'create table tblarchivators ('#13+
         '    id tid,'#13+
-        '    fname tshortstr,'#13+
-        '    fpackpath tlongstr,'#13+
+        '    fname tshortstr not null,'#13+
+        '    fpackpath tlongstr not null,'#13+
         '    fpackoptions tnormalstr,'#13+
         '    funpackpath tlongstr,'#13+
         '    funpackoptions tnormalstr,'#13+
-        '    fextension tshortstr,'#13+
+        '    fextension tshortstr not null,'#13+
         '    fstatus tinteger not null'#13+
         ')!!'#13+
+        'create generator genarchivators!!'#13+
+        'create trigger trgarchivators for tblarchivators'#13+
+        '  active before insert position 1 as begin'#13+
+        '  if ((new.id is null) or (new.id = 0)) then'#13+
+        '    new.id=gen_id(genarchivators,1);'#13+
+        'end!!'#13+
+        'create ascending index idxarchivators on tblarchivators(fname)!!'#13+
         'create table tbltasks('#13+
-       '  id tid,'#13+
-       '  fname tnormalstr not null,'#13+
-       '  fsourcefolder thugestr not null,'#13+
-       '  ftargetfolder thugestr not null,'#13+
-       '  ftargetfile thugestr not null,'#13+
-       '  farchivator tinteger not null,'#13+
-       '  farchivatoroptions thugestr not null,'#13+
-       '  fperiod tinteger not null,'#13+
-       '  ftime tshortstr,'#13+
-       '  fdayofweek tinteger not null,'#13+
-       '  fdate tshortstr, '#13+
-       '  flastrundate tinteger,'#13+
-       '  flastrunresult tinteger,'#13+
-       '  frunafterbackup thugestr, '#13+
-       '  frunbeforebackup thugestr, '#13+
-       '  fstatus tinteger not null'#13+
-       '  );';
-
-var lsDatabaseFullName : String;
-    lblDabaseExists    : Boolean;
+        '  id tid,'#13+
+        '  fname tnormalstr not null,'#13+
+        '  fsourcefolder thugestr not null,'#13+
+        '  ftargetfolder thugestr not null,'#13+
+        '  ftargetfile thugestr not null,'#13+
+        '  farchivator tinteger not null,'#13+
+        '  farchivatoroptions thugestr not null,'#13+
+        '  fperiod tinteger not null,'#13+
+        '  ftime tshortstr,'#13+
+        '  fdayofweek tinteger not null,'#13+
+        '  fdate tshortstr, '#13+
+        '  flastrundate tinteger,'#13+
+        '  flastrunresult tinteger,'#13+
+        '  frunafterbackup thugestr, '#13+
+        '  frunbeforebackup thugestr, '#13+
+        '  fstatus tinteger not null'#13+
+        '  )!!'#13+
+        'create generator gentasks!!'#13+
+        'create trigger trgtasks for tbltasks'#13+
+        '  active before insert position 1 as begin'#13+
+        '  if ((new.id is null) or (new.id = 0)) then'#13+
+        '    new.id=gen_id(gentasks,1);'#13+
+        'end!!'#13+
+        'create ascending index idxtasks on tbltasks(fname)!!'#13+
+        'commit;';
+{$endregion}
 begin
 
   IBC.DatabaseName := getAppFolder()+'DB\'+csDatabaseFileName;
-  try
+  if not FileExists(IBC.DatabaseName) then
+  begin
 
-    if not FileExists(IBC.DatabaseName) then
-    begin
+    try
 
       IBC.CreateDB();
       IBC.Open();
-      //Transact.StartTransaction;
-      //SQLite.ExecuteDirect(csSQLCreateTableArchivators);
-      //SQLite.ExecuteDirect(csSQLCreateTableTasks);
-      //Transact.Commit;
-    end;
-  except
-    on E : Exception do
-    begin
+      trCreate.EndTransaction;
+      trCreate.StartTransaction;
+      scrCreate.Script.Clear;
+      //poQuery.SQL.Delimiter:=CR;
+      scrCreate.Script.AddDelimitedText(csSQLCreateScript, #13, True);
+      scrCreate.Execute;
+    except
+      on E : Exception do
+      begin
 
-      processException('Создание базы данных привело к возникновению исключительной ситуации: ', E);
-		end;
-	end;
+        processException('Создание базы данных привело к возникновению исключительной ситуации: ', E);
+  		end;
+  	end;
+  end;
 end;
 
 

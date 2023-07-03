@@ -100,8 +100,8 @@ begin
 
     try
 
-      MainForm.Transact.EndTransaction;
-      MainForm.Transact.StartTransaction;
+      //MainForm.Transact.EndTransaction;
+      //MainForm.Transact.StartTransaction;
 
       //***** Зажигаем! Let's rock!
       if moMode=dmInsert then
@@ -116,10 +116,10 @@ begin
       end;
       StoreData();
       qrArchEx.ExecSQL;
-      MainForm.Transact.Commit;
+      //MainForm.Transact.Commit;
     except
 
-      MainForm.Transact.Rollback;
+      //MainForm.Transact.Rollback;
       FatalError('Error!','Database request failed!');
     end;
     ModalResult:=mrOk;

@@ -234,10 +234,6 @@ object fmMain: TfmMain
     ParentShowHint = False
     ShowHint = True
   end
-  object Transact: TSQLTransaction
-    Active = False
-    Left = 448
-  end
   object qrTasks: TSQLQuery
     MaxIndexesCount = 4
     FieldDefs = <    
@@ -383,16 +379,17 @@ object fmMain: TfmMain
         Precision = -1
       end>
     AfterScroll = qrTasksAfterScroll
-    Transaction = Transact
+    Database = IBC
+    Transaction = trTasks
     SQL.Strings = (
       ''
     )
     Params = <>
     Macros = <>
-    Left = 344
+    Left = 376
   end
   object dsTasks: TDataSource
-    Left = 392
+    Left = 432
   end
   object Timer: TTimer
     Enabled = False
@@ -401,7 +398,7 @@ object fmMain: TfmMain
     Left = 752
   end
   object pmState: TPopupMenu
-    Left = 288
+    Left = 712
     object miActivate: TMenuItem
       Caption = 'Активировать'
     end
@@ -411,10 +408,12 @@ object fmMain: TfmMain
   end
   object qrTaskExt: TSQLQuery
     FieldDefs = <>
-    Transaction = Transact
+    Database = IBC
+    Transaction = trTasks
     Params = <>
     Macros = <>
-    Left = 512
+    Left = 376
+    Top = 56
   end
   object TrayIcon: TTrayIcon
     Icon.Data = {
@@ -900,7 +899,6 @@ object fmMain: TfmMain
   end
   object qrTaskUpdate: TSQLQuery
     FieldDefs = <>
-    Transaction = Transact
     Params = <>
     Macros = <>
     Left = 648
@@ -913,10 +911,53 @@ object fmMain: TfmMain
       'PAGE_SIZE=16384'
     )
     Password = 'masterkey'
+    Transaction = trTasks
     UserName = 'SYSDBA'
     CharSet = 'UTF8'
     CheckTransactionParams = False
     UseConnectionCharSetIfNone = False
-    Left = 712
+    Left = 256
+  end
+  object trTasks: TSQLTransaction
+    Active = False
+    Database = IBC
+    Left = 312
+  end
+  object trsTasksExt: TSQLTransaction
+    Active = False
+    Database = IBC
+    Left = 312
+    Top = 56
+  end
+  object scrCreate: TSQLScript
+    DataBase = IBC
+    Transaction = trCreate
+    AutoCommit = False
+    UseDollarString = False
+    Directives.Strings = (
+      'SET TERM'
+      'COMMIT WORK'
+      'COMMIT RETAIN'
+      'COMMIT'
+      '#IFDEF'
+      '#IFNDEF'
+      '#ELSE'
+      '#ENDIF'
+      '#DEFINE'
+      '#UNDEF'
+      '#UNDEFINE'
+    )
+    Terminator = ';'
+    CommentsinSQL = True
+    UseSetTerm = True
+    UseCommit = True
+    UseDefines = True
+    Left = 504
+  end
+  object trCreate: TSQLTransaction
+    Active = False
+    Database = IBC
+    Left = 504
+    Top = 56
   end
 end
