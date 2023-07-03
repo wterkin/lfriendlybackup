@@ -6,10 +6,9 @@ interface
 {$H+}
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Buttons, DBGrids, ComCtrls, sqlite3conn, sqldb, db, windows, Grids, StdCtrls,
-  Menus, ActnList, DateUtils, StrUtils, DateTimePicker,
-  tlib, tdb, tstr, tparams, tlog, tini, tapp, tmsg, tsqlite,
-  archivators, taskedit;
+	Buttons, DBGrids, ComCtrls, sqlite3conn, sqldb, IBConnection, db, windows,
+	Grids, StdCtrls, Menus, ActnList, DateUtils, StrUtils, DateTimePicker, tlib,
+	tdb, tstr, tparams, tlog, tini, tapp, tmsg, archivators, taskedit;
 
 type
 
@@ -52,6 +51,7 @@ type
     Button1: TButton;
     dbgTasks: TDBGrid;
     dsTasks: TDataSource;
+		IBC: TIBConnection;
 		ImageList: TImageList;
     miDeactivate: TMenuItem;
     miActivate: TMenuItem;
@@ -65,7 +65,6 @@ type
     sbStart: TSpeedButton;
     sbDelete: TSpeedButton;
     sbClose: TSpeedButton;
-    SQLite: TSQLite3Connection;
     qrTasks: TSQLQuery;
     qrTaskExt: TSQLQuery;
 		qrTaskUpdate: TSQLQuery;
@@ -86,6 +85,7 @@ type
       {%H-}Column: TColumn; {%H-}AState: TGridDrawState);
     procedure FormActivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var {%H-}CloseAction: TCloseAction);
+		procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
     procedure FormWindowStateChange(Sender: TObject);
     procedure qrTasksAfterScroll({%H-}DataSet: TDataSet);
@@ -140,23 +140,28 @@ const
         '          from tbltasks TASK'#13+
         '          inner join tblarchivators ARC'#13+
         '            on ARC."id"=TASK."farchivator"'#13+
-        '          where (TASK."fstatus">=:pstatus) and'#13+
-        '                (ARC."fstatus">0)';
+        '          where (TASK."fstatus" >= :pstatus) and'#13+
+        '                (ARC."fstatus" > 0)';
 
       {$endregion}
 
-      csDatabaseFileName         = 'lfriendlybackup.db';
+      csDatabaseFileName         = 'lfriendlybackup.fdb';
       csMainFormCaption          = 'Your friendly backup maker %s %s';
       csRunCmd                   = 'r';
+
       ciStatusDeleted            = 0;
       ciStatusInactive           = 1;
       ciStatusActive             = 2;
+
       clColorTaskActiveBkg       = clWindow;
       clColorTaskInActiveBkg     = $00D0D8E0;
+
       ciLastRunUnSuccessful      = 0;
       ciLastRunSuccessful        = 1;
+
       clColorLastRunUnSuccessful = $8F305B; // красный
       clColorLastRunSuccessful   = $224F15; //7DA035; // зеленый
+
       ciPeriodEachMinute         = 0;
       ciPeriodEachHour           = 1;
       ciPeriodEachDay            = 2;
@@ -198,6 +203,8 @@ const
       ciIconStop       = 7;
       ciIconDeactivate = 9;
       ciIconActivate   = 10;
+      csLogsFolder     = 'logs/';
+      csDLLFolder      = 'DLL/';
       {$define __DEBUG__}
 var
   fmMain   : TfmMain;
@@ -216,42 +223,44 @@ var lsLogName : String;
 begin
 
   OnActivate := Nil;
-  dbgTasks.FocusColor := clNavy; // * Синяя рамка выбранной ячейки
-  MainForm := fmMain;
-  MainForm.Caption := Format(csMainFormCaption,[csVersion, 'остановлен']);
-  createDatabaseIfNeeded(); // * Создаем БД, если ее нет.
+  //dbgTasks.FocusColor := clNavy; // * Синяя рамка выбранной ячейки
+  //MainForm := fmMain;
+  //MainForm.Caption := Format(csMainFormCaption,[csVersion, 'остановлен']);
+  //createDatabaseIfNeeded(); // * Создаем БД, если ее нет.
   // *** Заведем объект выборки для грида
-  moTasks := TEasySQLite.Create();
-  moTasks.setup(SQLite, dsTasks);
-  reopenTables();
-  // *** Прочитаем конфиг
-  loIniMgr := TEasyIniManager.Create(getAppFolder + csIniFile);
-  loIniMgr.read(fmMain);
-  loIniMgr.read(fmMain.dbgTasks);
-  FreeAndNil(loIniMgr);
+  //moTasks := TEasySQLite.Create();
+  //moTasks.setup(SQLite, dsTasks);
+  //moTasks.initialize(csSQLSelectTasks, 'ataskid');
+  //moTasks.parameter('pstatus', ciStatusInactive);
+  //reopenTables();
+  //// *** Прочитаем конфиг
+  //loIniMgr := TEasyIniManager.Create(getAppFolder + csIniFile);
+  //loIniMgr.read(fmMain);
+  //loIniMgr.read(fmMain.dbgTasks);
+  //FreeAndNil(loIniMgr);
   // *** Что там в командной строке?
-  analizeCmdLine();
-  // *** Заводим объект выборки задания
-  moTaskExecuteQuery := TEasySQLite.Create();
-  moTaskExecuteQuery.setup(SQLite);
+  //analizeCmdLine();
+  //// *** Заводим объект выборки задания
+  //moTaskExecuteQuery := TEasySQLite.Create();
+  //moTaskExecuteQuery.setup(SQLite);
   // *** Заведем лог
-  lsLogName := getAppFolder() + 'logs/' + FormatDateTime('yyyymmdd',Now) + '.log';
-  if FileExists(lsLogName) then
-  begin
-
-    moLog := TEasyLog.Load(lsLogName)
-	end
-	else begin
-
-    moLog := TEasyLog.Create(lsLogName);
-	end;
-	moLog.WriteTimeStamp(csTimeStampMask);
-  moLog.WriteLN(' started');
-  moLog.Save;
-  {$ifdef __DEBUG__}
-  MainForm.Caption := MainForm.Caption+' [отладка]';
-  moLog.WriteLN('debug mode on');
-  {$endif}
+ // lsLogName := getAppFolder() + 'logs/' + FormatDateTime('yyyymmdd',Now) + '.log';
+ // if FileExists(lsLogName) then
+ // begin
+ //
+ //   moLog := TEasyLog.Load(lsLogName)
+	//end
+	//else begin
+ //
+ //   moLog := TEasyLog.Create(lsLogName);
+	//end;
+	//moLog.WriteTimeStamp(csTimeStampMask);
+ // moLog.WriteLN(' started');
+ // moLog.Save;
+  //{$ifdef __DEBUG__}
+  //MainForm.Caption := MainForm.Caption+' [отладка]';
+  //moLog.WriteLN('debug mode on');
+  //{$endif}
   // *** Обновим файл флага работы
   refreshRunningFile();
   {$ifndef __DEBUG__}
@@ -280,6 +289,53 @@ begin
   FreeAndNil(moTaskExecuteQuery);
   FreeAndNil(moTasks);
   SQLite.Close();
+end;
+
+
+procedure TfmMain.FormCreate(Sender: TObject);
+begin
+
+  inherited;
+  //
+  MainForm := fmMain;
+  MainForm.Caption := Format(csMainFormCaption,[csVersion, 'остановлен']);
+  dbgTasks.FocusColor := clNavy; // * Синяя рамка выбранной ячейки
+
+  // *** Прочитаем конфиг
+  loIniMgr := TEasyIniManager.Create(getAppFolder() + csIniFile);
+  loIniMgr.read(fmMain);
+  loIniMgr.read(fmMain.dbgTasks);
+  FreeAndNil(loIniMgr);
+
+  // *** Что там в командной строке?
+  analizeCmdLine();
+  // *** Заведем лог
+  lsLogName := getAppFolder() + csLogsFolder + FormatDateTime('yyyymmdd', Now) + '.log';
+  if FileExists(lsLogName) then
+  begin
+
+    moLog := TEasyLog.Load(lsLogName)
+	end
+	else begin
+
+    moLog := TEasyLog.Create(lsLogName);
+	end;
+	moLog.WriteTimeStamp(csTimeStampMask);
+  moLog.WriteLN(' started');
+  moLog.Save;
+
+  {$ifdef __DEBUG__}
+  // *** Если включён режим отладки - выведем сообщение в заголовок и в лог
+  MainForm.Caption := MainForm.Caption+' [отладка]';
+  moLog.WriteLN('debug mode on');
+  {$endif}
+
+  // *** Так как у нас DLLки лежат в папке DLL, мы должны туда перейти
+  ChDir(csDLLFolder);
+  createDatabaseIfNeeded(); // * Создаем БД, если ее нет.
+  //reopenTables();
+  // *** Обновим файл флага работы
+  refreshRunningFile();
 end;
 
 
@@ -351,6 +407,7 @@ procedure TfmMain.actCreateTaskExecute(Sender: TObject);
 var liCount : Integer;
 begin
 
+  //Timer.Enabled:=False;
   try
 
     // *** Запомним текущую запись
@@ -359,7 +416,9 @@ begin
     qrTaskExt.Open;
     liCount := qrTaskExt.FieldByName('acount').AsInteger;
     qrTaskExt.Close;
+    reopenTables();
   except
+
     on E : Exception do
     begin
 
@@ -369,7 +428,7 @@ begin
 
   reopenTables();
   // *** Если определен хоть один архиватор...
-  if liCount>0 then
+  if liCount > 0 then
   begin
 
     // *** Добавляем задачу.
@@ -379,6 +438,7 @@ begin
 
     processError('Ошибка!','В БД не определен ни один архиватор!');
 	end;
+  //Timer.Enabled:=True;
 end;
 
 
@@ -613,7 +673,8 @@ begin
       {$endif}
       moTaskExecuteQuery.next();
     end;
-    reopenTables();
+    moTasks.refresh();
+    //reopenTables();
 
   except
     on E : Exception do
@@ -861,16 +922,7 @@ begin
 
   try
 
-    if not moTasks.isClosed() then
-    begin
-
-      moTasks.close();
-		end;
-
-    moTasks.initialize(csSQLSelectTasks, 'ataskid');
-    moTasks.parameter('pstatus', ciStatusDeleted);
-    moTasks.open();
-    moTasks.reStore();
+    moTasks.refresh();
     AfterScroll();
     // *** Разрешим / запретим кнопки в зависимости от состояния выборки
     actEditTask.Enabled := moTasks.Count()>0;

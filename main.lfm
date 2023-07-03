@@ -8,6 +8,7 @@ object fmMain: TfmMain
   ClientWidth = 961
   OnActivate = FormActivate
   OnClose = FormClose
+  OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnWindowStateChange = FormWindowStateChange
   Position = poDesktopCenter
@@ -234,18 +235,8 @@ object fmMain: TfmMain
     ParentShowHint = False
     ShowHint = True
   end
-  object SQLite: TSQLite3Connection
-    Connected = False
-    LoginPrompt = False
-    KeepConnection = False
-    Transaction = Transact
-    CharSet = 'UTF-8'
-    AlwaysUseBigint = False
-    Left = 712
-  end
   object Transact: TSQLTransaction
     Active = False
-    Database = SQLite
     Left = 448
   end
   object qrTasks: TSQLQuery
@@ -393,7 +384,6 @@ object fmMain: TfmMain
         Precision = -1
       end>
     AfterScroll = qrTasksAfterScroll
-    Database = SQLite
     Transaction = Transact
     SQL.Strings = (
       ''
@@ -422,7 +412,6 @@ object fmMain: TfmMain
   end
   object qrTaskExt: TSQLQuery
     FieldDefs = <>
-    Database = SQLite
     Transaction = Transact
     Params = <>
     Macros = <>
@@ -912,10 +901,23 @@ object fmMain: TfmMain
   end
   object qrTaskUpdate: TSQLQuery
     FieldDefs = <>
-    Database = SQLite
     Transaction = Transact
     Params = <>
     Macros = <>
     Left = 648
+  end
+  object IBC: TIBConnection
+    Connected = False
+    LoginPrompt = False
+    KeepConnection = False
+    Params.Strings = (
+      'PAGE_SIZE=16384'
+    )
+    Password = 'masterkey'
+    UserName = 'SYSDBA'
+    CharSet = 'UTF8'
+    CheckTransactionParams = False
+    UseConnectionCharSetIfNone = False
+    Left = 712
   end
 end

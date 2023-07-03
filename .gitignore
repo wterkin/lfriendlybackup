@@ -6,3 +6,5 @@ lib/
 ppas.bat 
 *.exe
 *.dbg
+.iamrunning
+*.log

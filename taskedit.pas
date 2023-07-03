@@ -262,8 +262,8 @@ begin
     try
 
       MainForm.moTasks.store();
-      MainForm.Transact.EndTransaction;
-      MainForm.Transact.StartTransaction;
+      //MainForm.Transact.EndTransaction;
+      //MainForm.Transact.StartTransaction;
 
       //***** Зажигаем! Let's rock!
       if moMode = dmInsert then
@@ -277,8 +277,10 @@ begin
         initializeQuery(qrTasksEx, csSQLUpdateTask, False);
       end;
       StoreData();
+      MainForm.moTasks.store();
       qrTasksEx.ExecSQL;
       MainForm.Transact.Commit;
+      MainForm.moTasks.refresh();
     except
       on E : Exception do
       begin
@@ -381,9 +383,10 @@ begin
   udDay.Position := DayOf(Now);
   udMonth.Position := MonthOf(Now);
   edRunBeforeBackup.Text := '';
-  edRunBeforeBackup.Text := '';
+  edRunAfterBackup.Text := '';
+  MainForm.moTasks.store();
   moLookup.fill();
-  MainForm.reopenTables();
+  MainForm.moTasks.refresh();
 end;
 
 
@@ -538,15 +541,27 @@ begin
     end;
   end;
   edRunBeforeBackup.Text := MainForm.moTasks.StringField('frunafterbackup');
+
+  MainForm.moTasks.store();
   moLookup.fill();
   moLookup.setKey(miArchivatorId);
+  MainForm.moTasks.Refresh();
 end;
 
 
 function TfmTaskEdit.validateData(): Boolean;
 begin
 
-  result := cbArchivator.ItemIndex >= 0;
+  Result := not isEmpty(edName.Text) and
+            not isEmpty(edSource.Text) and
+            not isEmpty(edSource.Text) and
+            (cbArchivator.ItemIndex >= 0);
+  if not Result then
+  begin
+
+    notify('Необходимо заполнить поле "Наименование задачи", ',
+           ' исходный и целевой каталог и выбрать архиватор.');
+	end;
 end;
 
 

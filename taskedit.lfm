@@ -16,8 +16,8 @@ object fmTaskEdit: TfmTaskEdit
     Height = 496
     Top = 8
     Width = 640
-    ActivePage = TabSheet3
-    TabIndex = 2
+    ActivePage = TabSheet1
+    TabIndex = 0
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'Основные'
@@ -261,7 +261,7 @@ object fmTaskEdit: TfmTaskEdit
         object edSource: TEdit
           Left = 8
           Height = 28
-          Top = 136
+          Top = 135
           Width = 368
           Font.CharSet = RUSSIAN_CHARSET
           Font.Height = -15

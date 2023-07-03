@@ -168,6 +168,7 @@ begin
 
   try
 
+    MainForm.moTasks.store();
     if qrArch.State<>dsInactive then
     begin
 
@@ -176,6 +177,7 @@ begin
 		initializeQuery(qrArch,csSQLSelectArchivers);
     qrArch.Open;
     qrArchAfterScroll(Nil);
+    MainForm.moTasks.refresh();
   except
 
     FatalError('Error!','Database request failed!');
