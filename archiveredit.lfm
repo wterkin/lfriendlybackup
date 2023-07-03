@@ -1,12 +1,12 @@
 object fmArchivatorEdit: TfmArchivatorEdit
   Left = 467
-  Height = 407
+  Height = 438
   Top = 268
-  Width = 401
+  Width = 598
   BorderStyle = bsDialog
   Caption = 'Настройки архиватора'
-  ClientHeight = 407
-  ClientWidth = 401
+  ClientHeight = 438
+  ClientWidth = 598
   Position = poDesktopCenter
   LCLVersion = '2.2.6.0'
   object Panel1: TPanel
@@ -513,11 +513,17 @@ object fmArchivatorEdit: TfmArchivatorEdit
   end
   object qrArchEx: TSQLQuery
     FieldDefs = <>
-    Database = fmMain.SQLite
-    Transaction = fmMain.Transact
+    Database = fmMain.IBC
+    Transaction = trArchEx
     Params = <>
     Macros = <>
-    Left = 80
+    Left = 128
+    Top = 360
+  end
+  object trArchEx: TSQLTransaction
+    Active = False
+    Database = fmMain.IBC
+    Left = 72
     Top = 360
   end
 end

@@ -101,7 +101,6 @@ type
     procedure analizeCmdLine();
     procedure processTask();
     procedure refreshRunningFile();
-    procedure AfterScroll();
   public
 
     //moTasks : TEasySQLite;
@@ -117,32 +116,32 @@ type
 const
     {$region 'SQL'}
       csSQLSelectTasks =
-        'select TASK."id" as "ataskid",'#13+
-        '               TASK."fname",'#13+
-        '               TASK."fsourcefolder",'#13+
-        '               TASK."ftargetfolder",'#13+
-        '               TASK."ftargetfile",'#13+
-        '               TASK."farchivator",'#13+
-        '               TASK."farchivatoroptions",'#13+
-        '               TASK."fperiod",'#13+
-        '               TASK."ftime",'#13+
-        '               TASK."fdayofweek",'#13+
-        '               TASK."fdate",'#13+
-        '               TASK."frunbeforebackup",'#13+
-        '               TASK."frunafterbackup",'#13+
-        '               TASK."flastrundate",'#13+
-        '               TASK."flastrunresult",'#13+
-        '               TASK."fstatus",'#13+
-        '               ARC."fname",'#13+
-        '               ARC."fextension",'#13+
-        '               ARC."fpackpath",'#13+
-        '               ARC."fpackoptions",'#13+
-        '               case TASK."fstatus" when 2 then ''Активна'' else ''Неактивна'' end as astatus'#13+
+        'select TASK.id as ataskid,'#13+
+        '               TASK.fname,'#13+
+        '               TASK.fsourcefolder,'#13+
+        '               TASK.ftargetfolder,'#13+
+        '               TASK.ftargetfile,'#13+
+        '               TASK.farchivator,'#13+
+        '               TASK.farchivatoroptions,'#13+
+        '               TASK.fperiod,'#13+
+        '               TASK.ftime,'#13+
+        '               TASK.fdayofweek,'#13+
+        '               TASK.fdate,'#13+
+        '               TASK.frunbeforebackup,'#13+
+        '               TASK.frunafterbackup,'#13+
+        '               TASK.flastrundate,'#13+
+        '               TASK.flastrunresult,'#13+
+        '               TASK.fstatus,'#13+
+        '               ARC.fname,'#13+
+        '               ARC.fextension,'#13+
+        '               ARC.fpackpath,'#13+
+        '               ARC.fpackoptions,'#13+
+        '               case TASK.fstatus when 2 then ''Активна'' else ''Неактивна'' end as astatus'#13+
         '          from tbltasks TASK'#13+
         '          inner join tblarchivators ARC'#13+
-        '            on ARC."id"=TASK."farchivator"'#13+
-        '          where (TASK."fstatus" >= :pstatus) and'#13+
-        '                (ARC."fstatus" > 0)';
+        '            on ARC.id=TASK.farchivator'#13+
+        '          where (TASK.fstatus = :pstatus) and'#13+
+        '                (ARC.fstatus > 0)';
 
       {$endregion}
 
@@ -194,18 +193,24 @@ const
         LongDayNames      : ('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
         TwoDigitYearCenturyWindow: 50;
       );
-      csTimeStampMask  = 'yyyy/mm/dd hh:mm';
-      csControlChar    = '.';
-      csQuitFile       = csControlChar+'quit';
-      csRunningFile    = csControlChar+'iamrunning';
-      csIniFile        = 'lfriendlybackup.ini';
-      csVersion        = 'ver. 2.0.1';
-      ciIconStart      = 6;
-      ciIconStop       = 7;
-      ciIconDeactivate = 9;
-      ciIconActivate   = 10;
-      csLogsFolder     = 'logs/';
-      csDLLFolder      = 'DLL/';
+
+      csTimeStampMask    = 'yyyy/mm/dd hh:mm';
+      csControlChar      = '.';
+      csQuitFile         = csControlChar+'quit';
+      csRunningFile      = csControlChar+'iamrunning';
+      csIniFile          = 'lfriendlybackup.ini';
+      csVersion          = 'ver. 2.0.1';
+      ciIconStart        = 6;
+      ciIconStop         = 7;
+      ciIconDeactivate   = 9;
+      ciIconActivate     = 10;
+      csLogsFolder       = 'logs/';
+      csDLLFolder        = 'DLL/';
+      csFireBirdUser     = 'SYSDBA';
+      csFireBirdPassword = 'masterkey';
+      csFireBirdCharSet  = 'utf8';
+      ciFireBirdDialect  = 3;
+      csFireBirdPageSize = '16384';
       {$define __DEBUG__}
 var
   fmMain   : TfmMain;
@@ -285,9 +290,10 @@ begin
   // *** Так как у нас DLLки лежат в папке DLL, мы должны туда перейти
   ChDir(csDLLFolder);
   createDatabaseIfNeeded(); // * Создаем БД, если ее нет.
-  //reopenTables();
+  reopenTables();
   // *** Обновим файл флага работы
   refreshRunningFile();
+
 end;
 
 
@@ -732,9 +738,18 @@ const csSQLCreateScript =
 begin
 
   IBC.DatabaseName := getAppFolder()+'DB\'+csDatabaseFileName;
-  if not FileExists(IBC.DatabaseName) then
+  IBC.Username := csFireBirdUser;
+  IBC.Password := csFireBirdPassword;
+  IBC.Charset := csFireBirdCharSet;
+  IBC.Dialect := ciFireBirdDialect;
+  IBC.Params.Add(csFireBirdPageSize);
+  if FileExists(IBC.DatabaseName) then
   begin
 
+    IBC.Open;
+
+  end else
+  begin
     try
 
       IBC.CreateDB();
@@ -742,14 +757,13 @@ begin
       trCreate.EndTransaction;
       trCreate.StartTransaction;
       scrCreate.Script.Clear;
-      //poQuery.SQL.Delimiter:=CR;
       scrCreate.Script.AddDelimitedText(csSQLCreateScript, #13, True);
       scrCreate.Execute;
     except
       on E : Exception do
       begin
 
-        processException('Создание базы данных привело к возникновению исключительной ситуации: ', E);
+        processException('При создании базы данных возникла исключительная ситуация: ', E);
   		end;
   	end;
   end;
@@ -874,33 +888,18 @@ begin
 end;
 
 
-procedure TfmMain.AfterScroll;
-begin
-  {!!!
-  if moTasks.integerField('fstatus') = ciStatusInactive then
-  begin
-
-    actActivateTask.ImageIndex := ciIconActivate;
-    actActivateTask.Hint := 'Активировать задачу';
-  end else
-  begin
-
-    actActivateTask.ImageIndex:=ciIconDeActivate;
-    actActivateTask.Hint := 'Деактивировать задачу';
-  end;
-  }
-end;
-
-
 procedure TfmMain.reopenTables;
 begin
 
   try
 
-    //moTasks.refresh();
-    AfterScroll();
+    initializeQuery(qrTasks, csSQLSelectTasks);
+    qrTasks.ParamByName('pstatus').AsInteger:=ciStatusActive;
+    qrTasks.Open;
+    qrTasks.Last;
+    qrTasks.First;
     // *** Разрешим / запретим кнопки в зависимости от состояния выборки
-    // !!! actEditTask.Enabled := moTasks.Count()>0;
+    actEditTask.Enabled := qrTasks.RecordCount > 0;
     actDeleteTask.Enabled := actEditTask.Enabled;
     actRunTask.Enabled := actEditTask.Enabled;
     actActivateTask.Enabled := actEditTask.Enabled;

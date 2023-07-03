@@ -966,32 +966,36 @@ object fmTaskEdit: TfmTaskEdit
     TabOrder = 2
   end
   object dlgSelectDirectory: TSelectDirectoryDialog
-    Left = 472
-    Top = 176
+    Left = 456
+    Top = 312
   end
   object OpenDialog: TOpenDialog
-    Left = 472
-    Top = 120
+    Left = 456
+    Top = 256
   end
   object qrArchivators: TSQLQuery
     FieldDefs = <>
+    Database = fmMain.IBC
+    Transaction = trArchivators
     Params = <>
     Macros = <>
-    Left = 472
-    Top = 16
+    Left = 456
+    Top = 200
   end
   object qrTasksEx: TSQLQuery
     FieldDefs = <>
+    Database = fmMain.IBC
+    Transaction = trTaskEx
     Params = <>
     Macros = <>
-    Left = 472
-    Top = 64
+    Left = 456
+    Top = 96
   end
   object ImageList: TImageList
     Height = 22
     Width = 22
-    Left = 472
-    Top = 232
+    Left = 456
+    Top = 368
     Bitmap = {
       4C7A030000001600000016000000EC0900000000000078DAED98795014571EC7
       BD9298D5CD51497637D9AAC4236EAD1B77A3091A8DA636A6D444014B493804C4
@@ -1078,8 +1082,8 @@ object fmTaskEdit: TfmTaskEdit
   end
   object ActionList: TActionList
     Images = ImageList
-    Left = 472
-    Top = 288
+    Left = 456
+    Top = 424
     object actSelectSource: TAction
       Category = 'TaskEdit'
       ImageIndex = 0
@@ -1110,5 +1114,17 @@ object fmTaskEdit: TfmTaskEdit
       ImageIndex = 1
       OnExecute = actTryFormatExecute
     end
+  end
+  object trTaskEx: TSQLTransaction
+    Active = False
+    Database = fmMain.IBC
+    Left = 456
+    Top = 40
+  end
+  object trArchivators: TSQLTransaction
+    Active = False
+    Database = fmMain.IBC
+    Left = 456
+    Top = 152
   end
 end

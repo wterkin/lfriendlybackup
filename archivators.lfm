@@ -340,6 +340,8 @@ object fmArchivators: TfmArchivators
   object qrArch: TSQLQuery
     FieldDefs = <>
     AfterScroll = qrArchAfterScroll
+    Database = fmMain.IBC
+    Transaction = trArch
     Params = <>
     Macros = <>
     Left = 184
@@ -350,8 +352,20 @@ object fmArchivators: TfmArchivators
   end
   object qrArchEx: TSQLQuery
     FieldDefs = <>
+    Database = fmMain.IBC
+    Transaction = trArchEx
     Params = <>
     Macros = <>
-    Left = 272
+    Left = 336
+  end
+  object trArch: TSQLTransaction
+    Active = False
+    Database = fmMain.IBC
+    Left = 144
+  end
+  object trArchEx: TSQLTransaction
+    Active = False
+    Database = fmMain.IBC
+    Left = 280
   end
 end

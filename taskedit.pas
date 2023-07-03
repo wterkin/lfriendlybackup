@@ -71,6 +71,8 @@ type
     sbTargetFileFormatHelp: TSpeedButton;
     qrArchivators: TSQLQuery;
     qrTasksEx: TSQLQuery;
+		trArchivators: TSQLTransaction;
+		trTaskEx: TSQLTransaction;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
@@ -94,7 +96,7 @@ type
     moMode : TDBMode;
     miID   : Integer;
     miArchivatorId : Integer;
-    moLookup       : TEasyLookupCombo;
+    moArchLookup       : TEasyLookupCombo;
     procedure initData();
     procedure storeData();
     procedure loadData();
@@ -237,23 +239,24 @@ procedure TfmTaskEdit.FormCreate(Sender: TObject);
 begin
 
   inherited;
-  moLookup := TEasyLookupCombo.Create();
-  moLookup.setComboBox(cbArchivator);
-  moLookup.setQuery(qrArchivators);
-  moLookup.setSQL('select * from tblarchivators where fstatus>0');
-  moLookup.setKeyField('id');
-  moLookup.setListField('fname');
+  moArchLookup := TEasyLookupCombo.Create();
+  moArchLookup.setComboBox(cbArchivator);
+  moArchLookup.setQuery(qrArchivators);
+  moArchLookup.setSQL('select * from tblarchivators where fstatus>0');
+  moArchLookup.setKeyField('id');
+  moArchLookup.setListField('fname');
 end;
 
 
 procedure TfmTaskEdit.FormDestroy(Sender: TObject);
 begin
 
-  FreeAndNil(moLookup);
+  FreeAndNil(moArchLookup);
 end;
 
 
 procedure TfmTaskEdit.bbtOkClick(Sender: TObject);
+var lsMessage : String;
 begin
 
   if ValidateData() then
@@ -261,32 +264,28 @@ begin
 
     try
 
-      //MainForm.moTasks.store();
-      //MainForm.Transact.EndTransaction;
-      //MainForm.Transact.StartTransaction;
-
       //***** Зажигаем! Let's rock!
       if moMode = dmInsert then
       begin
 
+        lsMessage := 'Создание';
         initializeQuery(qrTasksEx, csSQLInsertTask, False);
       end
       else
       begin
 
+        lsMessage := 'Изменение';
         initializeQuery(qrTasksEx, csSQLUpdateTask, False);
       end;
       StoreData();
-      //MainForm.moTasks.store();
-      qrTasksEx.ExecSQL;
-      //MainForm.Transact.Commit;
-      //MainForm.moTasks.refresh();
+      qrTasksEx.ExecSQL();
+      trTaskEx.Commit();
     except
       on E : Exception do
       begin
 
-        MainForm.processException('Изменение задачи привело к возникновению исключительной ситуации: ', E);
-        //MainForm.Transact.Rollback;
+        trTaskEx.Rollback;
+        MainForm.processException(lsMessage + ' задачи привело к исключительной ситуации: ', E);
 		  end;
     end;
     ModalResult := mrOk;
@@ -384,9 +383,7 @@ begin
   udMonth.Position := MonthOf(Now);
   edRunBeforeBackup.Text := '';
   edRunAfterBackup.Text := '';
-  //MainForm.moTasks.store();
-  moLookup.fill();
-  //MainForm.moTasks.refresh();
+  moArchLookup.fill();
 end;
 
 
@@ -406,7 +403,7 @@ begin
 	end;
   qrTasksEx.ParamByName('ptargetfolder').AsString := edTargetFolder.Text;
   qrTasksEx.ParamByName('ptargetfile').AsString := edTargetFormat.Text;
-  qrTasksEx.ParamByName('parchivator').AsInteger := moLookup.getIntKey();
+  qrTasksEx.ParamByName('parchivator').AsInteger := moArchLookup.getIntKey();
   qrTasksEx.ParamByName('parchivatoroptions').AsString := edArchivatorOptions.Text;
   qrTasksEx.ParamByName('pperiod').AsInteger := cbPeriod.ItemIndex;
   if edHour.Enabled then
@@ -543,8 +540,8 @@ begin
   edRunBeforeBackup.Text := MainForm.moTasks.StringField('frunafterbackup');
 
   MainForm.moTasks.store();
-  moLookup.fill();
-  moLookup.setKey(miArchivatorId);
+  moArchLookup.fill();
+  moArchLookup.setKey(miArchivatorId);
   MainForm.moTasks.Refresh();
   }
 end;

@@ -24,6 +24,8 @@ type
     sbDelete: TSpeedButton;
     qrArch: TSQLQuery;
     qrArchEx: TSQLQuery;
+		trArchEx: TSQLTransaction;
+		trArch: TSQLTransaction;
     procedure FormActivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var {%H-}CloseAction: TCloseAction);
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
@@ -40,10 +42,10 @@ type
   end;
 
 const csSQLSelectArchivers =
-        'select "id", "fname", "fextension", "fpackpath", "fpackoptions"'#13+
-        '       , "funpackpath", "funpackoptions"'#13+
-        '  from "tblarchivators"'#13+
-        '  where "fstatus">0';
+        'select   id, fname, fextension, fpackpath, fpackoptions'#13+
+        '       , funpackpath, funpackoptions'#13+
+        '  from tblarchivators'#13+
+        '  where fstatus>0';
 
 var
   fmArchivators: TfmArchivators;
@@ -73,8 +75,7 @@ begin
 end;
 
 
-procedure TfmArchivators.FormClose(Sender: TObject; var CloseAction: TCloseAction
-  );
+procedure TfmArchivators.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
 
   qrArch.Close;
@@ -84,6 +85,7 @@ end;
 procedure TfmArchivators.FormActivate(Sender: TObject);
 begin
 
+  dbgArch.FocusColor := clNavy; // * Синяя рамка выбранной ячейки
   dbgArch.Update();
 end;
 
@@ -147,7 +149,7 @@ begin
         initializeQuery(qrArchEx, csDeleteArchiver);
         qrArchEx.ParamByName('pid').AsInteger:=liID;
         qrArchEx.ExecSQL;
-        //fmMain.Transact.Commit;
+        trArchEx.Commit;
       end else
       begin
 
@@ -155,7 +157,7 @@ begin
       end;
     except
 
-      //fmMain.Transact.Rollback;
+      trArchEx.Rollback;
       FatalError('Error!','Database request failed!');
     end;
   end;
@@ -168,7 +170,6 @@ begin
 
   try
 
-    //MainForm.moTasks.store();
     if qrArch.State<>dsInactive then
     begin
 
@@ -177,7 +178,6 @@ begin
 		initializeQuery(qrArch,csSQLSelectArchivers);
     qrArch.Open;
     qrArchAfterScroll(Nil);
-    //MainForm.moTasks.refresh();
   except
 
     FatalError('Error!','Database request failed!');
