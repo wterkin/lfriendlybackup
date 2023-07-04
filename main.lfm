@@ -926,7 +926,7 @@ object fmMain: TfmMain
     Database = IBC
     Left = 312
   end
-  object trsTasksEx: TSQLTransaction
+  object trTaskEx: TSQLTransaction
     Active = False
     Database = IBC
     Left = 368

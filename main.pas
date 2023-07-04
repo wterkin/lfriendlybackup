@@ -70,7 +70,7 @@ type
 		qrTaskUpdate: TSQLQuery;
 		scrCreate: TSQLScript;
 		trCreate: TSQLTransaction;
-		trsTasksEx: TSQLTransaction;
+		trTaskEx: TSQLTransaction;
 		trTasks: TSQLTransaction;
     StatusBar1: TStatusBar;
     Timer: TTimer;
@@ -407,17 +407,17 @@ begin
     try
 
       initializeQuery(qrTaskEx,'delete from tbltasks where id=:pid', False);
-      // !!! qrTaskEx.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
+      qrTaskEx.ParamByName('pid').AsInteger := qrTasks.FieldByName('ataskid').AsInteger;
       qrTaskEx.ExecSQL;
-      //Transact.Commit;
+      trTaskEx.Commit;
       reopenTables();
     except
 
       on E : Exception do
       begin
 
+        trTaskEx.Rollback;
         processException('Удаление задачи привело к возникновению исключительной ситуации: ', E);
-        //Transact.Rollback;
   		end;
     end;
   end;
@@ -444,12 +444,9 @@ begin
 
   try
 
-    // *** Запомним текущую запись
-    //moTasks.store();
+    initializeQuery(qrTaskEx,'update tbltasks set fstatus=:pstatus where id=:pid', False);
     // *** Запишем статус активности
-    initializeQuery(qrTaskEx,'update tbltasks set "fstatus"=:pstatus where "id"=:pid', False);
-    {!!!
-    if moTasks.integerField('fstatus') = ciStatusInactive then
+    if qrTasks.FieldByName('fstatus').AsInteger = ciStatusInactive then
     begin
 
       qrTaskEx.ParamByName('pstatus').AsInteger := ciStatusActive;
@@ -458,17 +455,17 @@ begin
 
       qrTaskEx.ParamByName('pstatus').AsInteger := ciStatusInActive;
 		end;
-    }
-		//!!! qrTaskEx.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
+		qrTaskEx.ParamByName('pid').AsInteger := qrTasks.FieldByName('ataskid').AsInteger;
     qrTaskEx.ExecSQL;
-    //Transact.Commit;
+    trTaskEx.Commit;
     reopenTables();
   except
+
     on E : Exception do
     begin
 
+      trTaskEx.Rollback;
       processException('Активация задачи привела к возникновению исключительной ситуации: ', E);
-      //Transact.Rollback;
 		end;
   end;
 end;
@@ -765,7 +762,7 @@ begin
  		end;
  	end;
   qrTasks.Transaction := trTasks;
-  qrTaskEx.Transaction := trsTasksEx;
+  qrTaskEx.Transaction := trTaskEx;
   scrCreate.Transaction := trCreate;
 end;
 
@@ -889,16 +886,21 @@ end;
 
 
 procedure TfmMain.reopenTables;
+var liID : Integer;
 begin
-
+  liID := -1;
   try
 
-    initializeQuery(qrTasks, csSQLSelectTasks);
-    qrTasks.SQL.SaveToFile('../sql.txt');
+    if qrTasks.State = dsBrowse then
+    begin
+
+      liID := qrTasks.FieldByName('ataskid').AsInteger;
+		end;
+		initializeQuery(qrTasks, csSQLSelectTasks);
     qrTasks.ParamByName('pstatus').AsInteger:=ciStatusInActive;
     qrTasks.Open;
-    qrTasks.Last;
     qrTasks.First;
+    qrTasks.Locate('ataskid', liID, []);
     // *** Разрешим / запретим кнопки в зависимости от состояния выборки
     actEditTask.Enabled := qrTasks.RecordCount > 0;
     actDeleteTask.Enabled := actEditTask.Enabled;

@@ -467,9 +467,8 @@ end;
 
 procedure TfmTaskEdit.loadData();
 begin
-  {
-  edName.Text := MainForm.moTasks.StringField('fname');
-  edSource.Text := MainForm.moTasks.StringField('fsourcefolder');
+  edName.Text := MainForm.qrTasks.FieldByName('fname').AsString;
+  edSource.Text := MainForm.qrTasks.FieldByName('fsourcefolder').AsString;
 
   cbSubject.ItemIndex:=0;
   if (Length(edSource.Text) > 0) and
@@ -483,10 +482,10 @@ begin
 
     cbSubject.ItemIndex := 0;
   end;
-  edTargetFolder.Text := MainForm.moTasks.StringField('ftargetfolder');
-  edTargetFormat.Text := MainForm.moTasks.StringField('ftargetfile');
-  edArchivatorOptions.Text := MainForm.moTasks.StringField('farchivatoroptions');
-  cbPeriod.ItemIndex := MainForm.moTasks.IntegerField('fperiod');
+  edTargetFolder.Text := MainForm.qrTasks.FieldByName('ftargetfolder').AsString;
+  edTargetFormat.Text := MainForm.qrTasks.FieldByName('ftargetfile').AsString;
+  edArchivatorOptions.Text := MainForm.qrTasks.FieldByName('farchivatoroptions').AsString;
+  cbPeriod.ItemIndex := MainForm.qrTasks.FieldByName('fperiod').AsInteger;
 
   edMinute.Enabled := False;
   edHour.Enabled := False;
@@ -501,51 +500,50 @@ begin
     ciPeriodEachHour: begin
 
       edMinute.Enabled := True;
-      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
+      udMinute.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
     end;
     ciPeriodEachDay: begin
 
       edMinute.Enabled := True;
-      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
+      udMinute.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
       edHour.Enabled := True;
-      udHour.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 1, 2), 0);
+      udHour.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 1, 2), 0);
     end;
     ciPeriodEachWeek: begin
 
       edMinute.Enabled := True;
-      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
+      udMinute.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
       edHour.Enabled:=True;
-      udHour.Position:=StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 1, 2), 0);
-      cbWeekDay.ItemIndex:=MainForm.moTasks.IntegerField('fdayofweek')-1;
+      udHour.Position:=StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 1, 2), 0);
+      cbWeekDay.ItemIndex:=MainForm.qrTasks.FieldByName('fdayofweek').AsInteger - 1;
     end;
     ciPeriodEachMonth:begin
 
       edMinute.Enabled := True;
-      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
+      udMinute.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
       edHour.Enabled := True;
-      udHour.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 1, 2), 0);
+      udHour.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 1, 2), 0);
       edDay.Enabled := True;
-      udDay.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('fdate'), 1, 2), 0);
+      udDay.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('fdate').AsString, 1, 2), 0);
     end;
     ciPeriodEachYear:begin
 
       edMinute.Enabled := True;
-      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
+      udMinute.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
       edHour.Enabled := True;
-      udHour.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 1, 2), 0);
+      udHour.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 1, 2), 0);
       edDay.Enabled := True;
-      udDay.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('fdate'), 1, 2), 0);
+      udDay.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('fdate').AsString, 1, 2), 0);
       edMonth.Enabled := True;
-      udMonth.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('fdate'), 4, 2), 0);
+      udMonth.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('fdate').AsString, 4, 2), 0);
     end;
   end;
-  edRunBeforeBackup.Text := MainForm.moTasks.StringField('frunafterbackup');
+  edRunBeforeBackup.Text := MainForm.qrTasks.FieldByName('frunafterbackup').AsString;
 
-  MainForm.moTasks.store();
+  //MainForm.qrTasks.store();
   moArchLookup.fill();
   moArchLookup.setKey(miArchivatorId);
-  MainForm.moTasks.Refresh();
-  }
+  MainForm.qrTasks.Refresh();
 end;
 
 
@@ -569,8 +567,8 @@ procedure TfmTaskEdit.viewRecord();
 begin
 
   moMode := dmUpdate;
-  // !!! miID:=MainForm.moTasks.IntegerField('ataskid');
-  // !!! miArchivatorID:=MainForm.moTasks.IntegerField('farchivator');
+  miID:=MainForm.qrTasks.FieldByName('ataskid').AsInteger;
+  miArchivatorID:=MainForm.qrTasks.FieldByName('farchivator').AsInteger;
   loadData();
   cbPeriodChange(nil);
   ShowModal;
