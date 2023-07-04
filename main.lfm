@@ -900,12 +900,6 @@ object fmMain: TfmMain
       OnExecute = actQuitExecute
     end
   end
-  object qrTaskUpdate: TSQLQuery
-    FieldDefs = <>
-    Params = <>
-    Macros = <>
-    Left = 648
-  end
   object IBC: TIBConnection
     Connected = False
     LoginPrompt = False
@@ -960,6 +954,18 @@ object fmMain: TfmMain
     Active = False
     Database = IBC
     Left = 424
+    Top = 48
+  end
+  object trTaskExecute: TSQLTransaction
+    Active = False
+    Database = IBC
+    Left = 496
+  end
+  object qrTaskExecute: TSQLQuery
+    FieldDefs = <>
+    Params = <>
+    Macros = <>
+    Left = 496
     Top = 48
   end
 end

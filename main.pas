@@ -67,8 +67,9 @@ type
     sbClose: TSpeedButton;
     qrTasks: TSQLQuery;
     qrTaskEx: TSQLQuery;
-		qrTaskUpdate: TSQLQuery;
 		scrCreate: TSQLScript;
+		qrTaskExecute: TSQLQuery;
+		trTaskExecute: TSQLTransaction;
 		trCreate: TSQLTransaction;
 		trTaskEx: TSQLTransaction;
 		trTasks: TSQLTransaction;
@@ -221,8 +222,6 @@ implementation
 {$R *.lfm}
 
 { TfmMain }
-// ToDo: Сделать логгирование ошибок!
-
 procedure TfmMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 var loIniMgr : TEasyIniManager;
 begin
@@ -607,32 +606,26 @@ begin
     DateTimeToString(lsDate, 'dd.mm', Now());
     {$endif}
     //moTasks.store();
-    {!!!
-    moTaskExecuteQuery.initialize(csSelectTask, 'ataskid');
-    moTaskExecuteQuery.parameter('pdate', lsDate);
-    moTaskExecuteQuery.parameter('ptime', lsTime);
-    moTaskExecuteQuery.parameter('pdayofweek', DayOfTheWeek(Now));
-    moTaskExecuteQuery.open();
-    while not moTaskExecuteQuery.EOF() do
+    initializeQuery(qrTaskExecute, csSelectTask);
+    qrTaskExecute.ParamByName('pdate').AsString := lsDate;
+    qrTaskExecute.ParamByName('ptime').AsString := lsTime;
+    qrTaskExecute.ParamByName('pdayofweek').AsInteger := DayOfTheWeek(Now);
+    qrTaskExecute.open();
+    while not qrTaskExecute.EOF do
     begin
 
-      moTaskExecuteQuery.store();
       ProcessTask();
-      moTaskExecuteQuery.open();
-      moTaskExecuteQuery.reStore();
-
       {$ifdef __DEBUG__}
       moLog.WriteTimeStamp('yyyy.MM.dd hh:mm');
-      moLog.Write(moTaskExecuteQuery.StringField('fname'));
+      moLog.Write(qrTaskExecute.FieldByName('fname').AsString);
       moLog.Writeln('loaded');
       moLog.Save;
       {$endif}
-      moTaskExecuteQuery.next();
+      qrTaskExecute.Next();
     end;
-    moTasks.refresh();
-    //reopenTables();
-    }
+    reopenTables();
   except
+
     on E : Exception do
     begin
 
@@ -763,7 +756,9 @@ begin
  	end;
   qrTasks.Transaction := trTasks;
   qrTaskEx.Transaction := trTaskEx;
+  qrTaskExecute.Transaction := trTaskExecute;
   scrCreate.Transaction := trCreate;
+
 end;
 
 
@@ -794,28 +789,27 @@ var lsCmdLine,
     lsTargetFolder : String;
     liProcessedTaskID : Integer;
 begin
-  {!!!
   //***** Соберем строку параметров упаковщика
-  lsCmdLine := '/C ' + moTaskExecuteQuery.stringField('fpackpath') + ' ' +
-                       moTaskExecuteQuery.stringField('fpackoptions') + ' '+
-                       moTaskExecuteQuery.stringField('farchivatoroptions') + ' ';
+  lsCmdLine := '/C ' + qrTaskExecute.FieldByName('fpackpath').AsString + ' ' +
+                       qrTaskExecute.FieldByName('fpackoptions').AsString + ' '+
+                       qrTaskExecute.FieldByName('farchivatoroptions').AsString + ' ';
   //***** Сгенерим имя файла архива в зависимости от периода
-  lsBackupName := moTaskExecuteQuery.stringField('ftargetfile');
+  lsBackupName := qrTaskExecute.FieldByName('ftargetfile').AsString;
   lsBackupName := ReplaceStr(lsBackupName, '`', '"');
   lsBackupName := FormatDateTime(lsBackupName,Now,MyOwnFormatSettings);
-  lsTargetFolder := addSeparator(moTaskExecuteQuery.stringField('ftargetfolder'));
-  lsBackupName := lsTargetFolder + lsBackupName + '.' + moTaskExecuteQuery.stringField('fextension');
+  lsTargetFolder := addSeparator(qrTaskExecute.FieldByName('ftargetfolder').AsString);
+  lsBackupName := lsTargetFolder + lsBackupName + '.' + qrTaskExecute.FieldByName('fextension').AsString;
 
   //***** Добавим имя архива в командную строку
   lsCmdLine := lsCmdLine + lsBackupName + ' ';
 
   //***** Папка или файл?
-  lsCmdLine := lsCmdLine + moTaskExecuteQuery.stringField('fsourcefolder');
+  lsCmdLine := lsCmdLine + qrTaskExecute.FieldByName('fsourcefolder').AsString;
 
-  if not isEmpty(moTaskExecuteQuery.stringField('frunbeforebackup')) then
+  if not isEmpty(qrTaskExecute.FieldByName('frunbeforebackup').AsString) then
   begin
 
-    lsBeforeCmdLine := '/C ' + moTaskExecuteQuery.stringField('frunbeforebackup') + ' "' + lsBackupName + '"';
+    lsBeforeCmdLine := '/C ' + qrTaskExecute.FieldByName('frunbeforebackup').AsString + ' "' + lsBackupName + '"';
     EasyExec('cmd.exe',lsBeforeCmdLine, True,True);
   end;
 
@@ -825,7 +819,7 @@ begin
   fmMain.Cursor := crDefault;
   // *** Отпишем в лог
   moLog.WriteTimeStamp(csTimeStampMask);
-  moLog.WriteLN('task '+ moTaskExecuteQuery.stringField('fname') + ' executed');
+  moLog.WriteLN('task '+ qrTaskExecute.FieldByName('fname').AsString + ' executed');
   moLog.WriteLN(lsCmdLine);
   if FileExists(lsBackupName) then
   begin
@@ -833,10 +827,10 @@ begin
     moLog.WriteLN('successfully =)');
 
     //***** Запускаем "после резервирования"
-    if not isEmpty(moTaskExecuteQuery.stringField('frunafterbackup')) then
+    if not isEmpty(qrTaskExecute.FieldByName('frunafterbackup').AsString) then
     begin
 
-      lsCmdLine := '/C ' + moTaskExecuteQuery.stringField('frunafterbackup') + ' "' + lsBackupName + '"';
+      lsCmdLine := '/C ' + qrTaskExecute.FieldByName('frunafterbackup').AsString + ' "' + lsBackupName + '"';
       EasyExec('cmd.exe',lsCmdLine,True,True);
     end;
   end else
@@ -847,30 +841,25 @@ begin
   end;
   moLog.Save;
   //***** Занесем в базу результат
-  moTasks.store();
-  liProcessedTaskID := moTaskExecuteQuery.integerField('ataskid');
-  // **** К чему бы тут это?
-  Transact.EndTransaction;
-  Transact.StartTransaction;
+  liProcessedTaskID := qrTaskExecute.FieldByName('ataskid').AsInteger;
   try
 
-    initializeQuery(qrTaskUpdate,csSQLUpdate, False);
-    qrTaskUpdate.ParamByName('pid').AsInteger := liProcessedTaskID;
-    qrTaskUpdate.ParamByName('plastrunresult').AsInteger :=
+    initializeQuery(qrTaskEx,csSQLUpdate, False);
+    qrTaskEx.ParamByName('pid').AsInteger := liProcessedTaskID;
+    qrTaskEx.ParamByName('plastrunresult').AsInteger :=
       iif(FileExists(lsBackupName), ciLastRunSuccessful, ciLastRunUnSuccessful);
-    qrTaskUpdate.ParamByName('plastrundate').AsDate := DateOf(Now);
-    qrTaskUpdate.ExecSQL;
-    Transact.Commit;
+    qrTaskEx.ParamByName('plastrundate').AsDate := DateOf(Now);
+    qrTaskEx.ExecSQL;
+    trTaskEx.Commit;
   except
     on E : Exception do
     begin
 
+      trTaskEx.Rollback;
       processException('Выполнение задачи привело к возникновению исключительной ситуации: ', E);
-      Transact.Rollback;
 		end;
   end;
   reopenTables();
-  }
 end;
 
 
