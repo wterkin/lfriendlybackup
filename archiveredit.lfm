@@ -7,6 +7,7 @@ object fmArchivatorEdit: TfmArchivatorEdit
   Caption = 'Настройки архиватора'
   ClientHeight = 438
   ClientWidth = 598
+  OnCreate = FormCreate
   Position = poDesktopCenter
   LCLVersion = '2.2.6.0'
   object Panel1: TPanel
@@ -345,7 +346,7 @@ object fmArchivatorEdit: TfmArchivatorEdit
     end
   end
   object bbtOk: TBitBtn
-    Left = 176
+    Left = 184
     Height = 30
     Top = 368
     Width = 107
@@ -514,7 +515,7 @@ object fmArchivatorEdit: TfmArchivatorEdit
   object qrArchEx: TSQLQuery
     FieldDefs = <>
     Database = fmMain.IBC
-    Transaction = trArchEx
+    Transaction = fmMain.trTasks
     Params = <>
     Macros = <>
     Left = 128

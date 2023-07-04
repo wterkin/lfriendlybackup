@@ -36,6 +36,7 @@ type
     sbUnpackPath: TSpeedButton;
 		trArchEx: TSQLTransaction;
     procedure bbtOkClick(Sender: TObject);
+		procedure FormCreate(Sender: TObject);
     procedure sbPackPathClick(Sender: TObject);
     procedure sbUnpackPathClick(Sender: TObject);
   private
@@ -127,6 +128,12 @@ begin
     end;
     ModalResult:=mrOk;
   end
+end;
+
+procedure TfmArchivatorEdit.FormCreate(Sender: TObject);
+begin
+
+  qrArchEx.Transaction := trArchEx;
 end;
 
 

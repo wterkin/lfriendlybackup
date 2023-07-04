@@ -8,6 +8,7 @@ object fmArchivators: TfmArchivators
   ClientWidth = 422
   OnActivate = FormActivate
   OnClose = FormClose
+  OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnShow = FormShow
   Position = poDesktopCenter
@@ -341,22 +342,25 @@ object fmArchivators: TfmArchivators
     FieldDefs = <>
     AfterScroll = qrArchAfterScroll
     Database = fmMain.IBC
-    Transaction = trArch
+    Transaction = fmMain.trTasks
     Params = <>
     Macros = <>
-    Left = 184
+    Left = 144
+    Top = 48
   end
   object dsArch: TDataSource
     DataSet = qrArch
-    Left = 224
+    Left = 144
+    Top = 96
   end
   object qrArchEx: TSQLQuery
     FieldDefs = <>
     Database = fmMain.IBC
-    Transaction = trArchEx
+    Transaction = fmMain.trTasks
     Params = <>
     Macros = <>
-    Left = 336
+    Left = 192
+    Top = 48
   end
   object trArch: TSQLTransaction
     Active = False
@@ -366,6 +370,6 @@ object fmArchivators: TfmArchivators
   object trArchEx: TSQLTransaction
     Active = False
     Database = fmMain.IBC
-    Left = 280
+    Left = 192
   end
 end

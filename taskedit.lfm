@@ -976,7 +976,7 @@ object fmTaskEdit: TfmTaskEdit
   object qrArchivators: TSQLQuery
     FieldDefs = <>
     Database = fmMain.IBC
-    Transaction = trArchivators
+    Transaction = fmMain.trTasks
     Params = <>
     Macros = <>
     Left = 456
@@ -985,7 +985,7 @@ object fmTaskEdit: TfmTaskEdit
   object qrTasksEx: TSQLQuery
     FieldDefs = <>
     Database = fmMain.IBC
-    Transaction = trTaskEx
+    Transaction = fmMain.trTasks
     Params = <>
     Macros = <>
     Left = 456

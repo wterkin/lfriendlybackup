@@ -245,6 +245,8 @@ begin
   moArchLookup.setSQL('select * from tblarchivators where fstatus>0');
   moArchLookup.setKeyField('id');
   moArchLookup.setListField('fname');
+  qrTasksEx.Transaction := trTaskEx;
+  qrArchivators.Transaction := trArchivators;
 end;
 
 

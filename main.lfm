@@ -386,10 +386,13 @@ object fmMain: TfmMain
     )
     Params = <>
     Macros = <>
-    Left = 376
+    Left = 312
+    Top = 48
   end
   object dsTasks: TDataSource
-    Left = 432
+    DataSet = qrTasks
+    Left = 312
+    Top = 96
   end
   object Timer: TTimer
     Enabled = False
@@ -406,14 +409,14 @@ object fmMain: TfmMain
       Caption = 'Деактивировать'
     end
   end
-  object qrTaskExt: TSQLQuery
+  object qrTaskEx: TSQLQuery
     FieldDefs = <>
     Database = IBC
     Transaction = trTasks
     Params = <>
     Macros = <>
-    Left = 376
-    Top = 56
+    Left = 368
+    Top = 48
   end
   object TrayIcon: TTrayIcon
     Icon.Data = {
@@ -923,11 +926,10 @@ object fmMain: TfmMain
     Database = IBC
     Left = 312
   end
-  object trsTasksExt: TSQLTransaction
+  object trsTasksEx: TSQLTransaction
     Active = False
     Database = IBC
-    Left = 312
-    Top = 56
+    Left = 368
   end
   object scrCreate: TSQLScript
     DataBase = IBC
@@ -952,12 +954,12 @@ object fmMain: TfmMain
     UseSetTerm = True
     UseCommit = True
     UseDefines = True
-    Left = 504
+    Left = 424
   end
   object trCreate: TSQLTransaction
     Active = False
     Database = IBC
-    Left = 504
-    Top = 56
+    Left = 424
+    Top = 48
   end
 end

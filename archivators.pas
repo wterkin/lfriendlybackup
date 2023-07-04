@@ -28,6 +28,7 @@ type
 		trArch: TSQLTransaction;
     procedure FormActivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var {%H-}CloseAction: TCloseAction);
+		procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
     procedure FormShow(Sender: TObject);
     procedure qrArchAfterScroll({%H-}DataSet: TDataSet);
@@ -79,6 +80,13 @@ procedure TfmArchivators.FormClose(Sender: TObject; var CloseAction: TCloseActio
 begin
 
   qrArch.Close;
+end;
+
+procedure TfmArchivators.FormCreate(Sender: TObject);
+begin
+
+  qrArch.Transaction := trArch;
+  qrArchEx.Transaction := trArchEx;
 end;
 
 

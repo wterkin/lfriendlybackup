@@ -66,11 +66,11 @@ type
     sbDelete: TSpeedButton;
     sbClose: TSpeedButton;
     qrTasks: TSQLQuery;
-    qrTaskExt: TSQLQuery;
+    qrTaskEx: TSQLQuery;
 		qrTaskUpdate: TSQLQuery;
 		scrCreate: TSQLScript;
 		trCreate: TSQLTransaction;
-		trsTasksExt: TSQLTransaction;
+		trsTasksEx: TSQLTransaction;
 		trTasks: TSQLTransaction;
     StatusBar1: TStatusBar;
     Timer: TTimer;
@@ -140,7 +140,7 @@ const
         '          from tbltasks TASK'#13+
         '          inner join tblarchivators ARC'#13+
         '            on ARC.id=TASK.farchivator'#13+
-        '          where (TASK.fstatus = :pstatus) and'#13+
+        '          where (TASK.fstatus >= :pstatus) and'#13+
         '                (ARC.fstatus > 0)';
 
       {$endregion}
@@ -239,7 +239,7 @@ begin
   loIniMgr.write(fmMain.dbgTasks);
   FreeAndNil(loIniMgr);
   // *** Закроем соединение с базой
-  qrTaskExt.Close;
+  qrTaskEx.Close;
   //FreeAndNil(moTaskExecuteQuery);
   //FreeAndNil(moTasks);
   //SQLite.Close();\
@@ -367,16 +367,13 @@ procedure TfmMain.actCreateTaskExecute(Sender: TObject);
 var liCount : Integer;
 begin
 
-  //Timer.Enabled:=False;
   try
 
-    // *** Запомним текущую запись
-    //moTasks.Store();
-    initializeQuery(qrTaskExt,'select count(*) as acount from tblarchivators where fstatus>0', False);
-    qrTaskExt.Open;
-    liCount := qrTaskExt.FieldByName('acount').AsInteger;
-    qrTaskExt.Close;
-    reopenTables();
+    // *** Проверим, зарегистрирован ли хоть один архиватор
+    initializeQuery(qrTaskEx,'select count(*) as acount from tblarchivators where fstatus>0', False);
+    qrTaskEx.Open;
+    liCount := qrTaskEx.FieldByName('acount').AsInteger;
+    qrTaskEx.Close;
   except
 
     on E : Exception do
@@ -386,19 +383,18 @@ begin
 		end;
 	end;
 
-  reopenTables();
   // *** Если определен хоть один архиватор...
   if liCount > 0 then
   begin
 
     // *** Добавляем задачу.
-    fmTaskEdit.appendRecord()
+    fmTaskEdit.appendRecord();
+    reopenTables();
 	end else
   begin
 
     processError('Ошибка!','В БД не определен ни один архиватор!');
 	end;
-  //Timer.Enabled:=True;
 end;
 
 
@@ -410,9 +406,9 @@ begin
 
     try
 
-      initializeQuery(qrTaskExt,'delete from tbltasks where id=:pid', False);
-      // !!! qrTaskExt.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
-      qrTaskExt.ExecSQL;
+      initializeQuery(qrTaskEx,'delete from tbltasks where id=:pid', False);
+      // !!! qrTaskEx.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
+      qrTaskEx.ExecSQL;
       //Transact.Commit;
       reopenTables();
     except
@@ -451,20 +447,20 @@ begin
     // *** Запомним текущую запись
     //moTasks.store();
     // *** Запишем статус активности
-    initializeQuery(qrTaskExt,'update tbltasks set "fstatus"=:pstatus where "id"=:pid', False);
+    initializeQuery(qrTaskEx,'update tbltasks set "fstatus"=:pstatus where "id"=:pid', False);
     {!!!
     if moTasks.integerField('fstatus') = ciStatusInactive then
     begin
 
-      qrTaskExt.ParamByName('pstatus').AsInteger := ciStatusActive;
+      qrTaskEx.ParamByName('pstatus').AsInteger := ciStatusActive;
     end else
     begin
 
-      qrTaskExt.ParamByName('pstatus').AsInteger := ciStatusInActive;
+      qrTaskEx.ParamByName('pstatus').AsInteger := ciStatusInActive;
 		end;
     }
-		//!!! qrTaskExt.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
-    qrTaskExt.ExecSQL;
+		//!!! qrTaskEx.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
+    qrTaskEx.ExecSQL;
     //Transact.Commit;
     reopenTables();
   except
@@ -743,14 +739,14 @@ begin
   IBC.Charset := csFireBirdCharSet;
   IBC.Dialect := ciFireBirdDialect;
   IBC.Params.Add(csFireBirdPageSize);
-  if FileExists(IBC.DatabaseName) then
-  begin
+  try
 
-    IBC.Open;
+    if FileExists(IBC.DatabaseName) then
+    begin
 
-  end else
-  begin
-    try
+      IBC.Open;
+    end else
+    begin
 
       IBC.CreateDB();
       IBC.Open();
@@ -759,14 +755,18 @@ begin
       scrCreate.Script.Clear;
       scrCreate.Script.AddDelimitedText(csSQLCreateScript, #13, True);
       scrCreate.Execute;
-    except
-      on E : Exception do
-      begin
+    end;
+  except
 
-        processException('При создании базы данных возникла исключительная ситуация: ', E);
-  		end;
-  	end;
-  end;
+    on E : Exception do
+    begin
+
+      processException('При соединении с базой данных возникла исключительная ситуация: ', E);
+ 		end;
+ 	end;
+  qrTasks.Transaction := trTasks;
+  qrTaskEx.Transaction := trsTasksEx;
+  scrCreate.Transaction := trCreate;
 end;
 
 
@@ -894,7 +894,8 @@ begin
   try
 
     initializeQuery(qrTasks, csSQLSelectTasks);
-    qrTasks.ParamByName('pstatus').AsInteger:=ciStatusActive;
+    qrTasks.SQL.SaveToFile('../sql.txt');
+    qrTasks.ParamByName('pstatus').AsInteger:=ciStatusInActive;
     qrTasks.Open;
     qrTasks.Last;
     qrTasks.First;
