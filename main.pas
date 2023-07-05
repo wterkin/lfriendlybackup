@@ -115,7 +115,7 @@ type
   TTaskInfoArray = array of TTaskInfo;
 
 const
-    {$region 'SQL'}
+      {$region 'SQL'}
       csSQLSelectTasks =
         'select TASK.id as ataskid,'#13+
         '               TASK.fname,'#13+
@@ -143,8 +143,7 @@ const
         '            on ARC.id=TASK.farchivator'#13+
         '          where (TASK.fstatus >= :pstatus) and'#13+
         '                (ARC.fstatus > 0)';
-
-      {$endregion}
+        {$endregion}
 
       csDatabaseFileName         = 'lfriendlybackup.fdb';
       csMainFormCaption          = 'Your friendly backup maker %s %s';
@@ -170,6 +169,7 @@ const
       ciPeriodEachMonth          = 4;
       ciPeriodEachYear           = 5;
 
+      {$Region 'Format'}
       MyOwnFormatSettings : TFormatSettings = (
         CurrencyFormat    : 1;
         NegCurrFormat     : 5;
@@ -194,7 +194,7 @@ const
         LongDayNames      : ('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
         TwoDigitYearCenturyWindow: 50;
       );
-
+      {$Endregion}
       csTimeStampMask    = 'yyyy/mm/dd hh:mm';
       csControlChar      = '.';
       csQuitFile         = csControlChar+'quit';
@@ -226,23 +226,20 @@ procedure TfmMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 var loIniMgr : TEasyIniManager;
 begin
 
-  // *** Грохнем файл флага работы
-  Windows.DeleteFileW(PWidechar(UnicodeString(getAppFolder + csRunningFile)));
-  // *** Закроем лог
-  moLog.WriteTimeStamp(csTimeStampMask);
-  moLog.WriteLN(' closed.');
-  moLog.Save();
   // *** Сохраним настройки в инишке
   loIniMgr := TEasyIniManager.Create(getAppFolder + csIniFile);
   loIniMgr.write(fmMain);
   loIniMgr.write(fmMain.dbgTasks);
   FreeAndNil(loIniMgr);
   // *** Закроем соединение с базой
-  qrTaskEx.Close;
-  //FreeAndNil(moTaskExecuteQuery);
-  //FreeAndNil(moTasks);
-  //SQLite.Close();\
+  qrTasks.Close;
   IBC.Close();
+  // *** Закроем лог
+  moLog.WriteTimeStamp(csTimeStampMask);
+  moLog.WriteLN(' closed.');
+  moLog.Save();
+  // *** Грохнем файл флага работы
+  Windows.DeleteFileW(PWidechar(UnicodeString(getAppFolder + csRunningFile)));
 end;
 
 
@@ -252,7 +249,6 @@ var lsLogName : String;
 begin
 
   inherited;
-  //
   MainForm := fmMain;
   MainForm.Caption := Format(csMainFormCaption,[csVersion, 'остановлен']);
   dbgTasks.FocusColor := clNavy; // * Синяя рамка выбранной ячейки
@@ -292,7 +288,6 @@ begin
   reopenTables();
   // *** Обновим файл флага работы
   refreshRunningFile();
-
 end;
 
 
@@ -300,21 +295,18 @@ procedure TfmMain.dbgTasksPrepareCanvas(sender: TObject; DataCol: Integer;
   Column: TColumn; AState: TGridDrawState);
 begin
 
-  {!!!
   // *** Если последний запуск был успешен, отрисуем надпись другим цветом
-  dbgTasks.Canvas.Font.Color:=iif(moTasks.integerField('flastrunresult')>0,
+  dbgTasks.Canvas.Font.Color:=iif(qrTasks.FieldByName('flastrunresult').AsInteger>0,
   clColorLastRunSuccessful, clColorLastRunUnSuccessful);
   // *** Если задача активна, фон зальем белым, иначе сереньким
-  dbgTasks.Canvas.Brush.Color:=iif(moTasks.integerField('fstatus')=2,
+  dbgTasks.Canvas.Brush.Color:=iif(qrTasks.FieldByName('fstatus').AsInteger=2,
     clColorTaskActiveBkg, clColorTaskInActiveBkg)
-  }
 end;
 
 
 procedure TfmMain.dbgTasksDblClick(Sender: TObject);
 begin
 
-  //moTasks.store();
   fmTaskEdit.viewRecord();
   reopenTables();
 end;
@@ -477,8 +469,7 @@ begin
 end;
 
 
-procedure TfmMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
-  );
+procedure TfmMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
 
   // *** Нажали Escape -
@@ -529,7 +520,6 @@ end;
 procedure TfmMain.sbArchiversClick(Sender: TObject);
 begin
 
-  //moTasks.store();
   fmArchivators.ShowModal();
   reopenTables();
 end;
@@ -538,42 +528,42 @@ end;
 procedure TfmMain.TimerTimer(Sender: TObject);
 {$region}
 const csSelectTask =
-  'select   TASK.id as ataskid'#13+
-  '       , TASK."fname"'#13+
-  '       , TASK."fsourcefolder"'#13+
-  '       , TASK."ftargetfolder"'#13+
-  '       , TASK."ftargetfile"'#13+
-  '       , TASK."farchivator"'#13+
-  '       , TASK."farchivatoroptions"'#13+
-  '       , TASK."fperiod"'#13+
-  '       , TASK."ftime"'#13+
-  '       , TASK."fdayofweek"'#13+
-  '       , TASK."fdate"'#13+
-  '       , TASK."frunbeforebackup"'#13+
-  '       , TASK."frunafterbackup"'#13+
-  '       , ARC."fname"'#13+
-  '       , ARC."fextension"'#13+
-  '       , ARC."fpackpath"'#13+
-  '       , ARC."fpackoptions"'#13+
-  '  from tbltasks TASK'#13+
-  '  inner join tblarchivators ARC'#13+
-  '    on ARC."id"=TASK."farchivator"'#13+
-  '  where     (TASK."fstatus">1)'#13+
-  '        and (ARC."fstatus"=1)'#13+
-  '        and (((TASK."fperiod" = 5)'#13+
-  '            and  (TASK."fdate" = :pdate)'#13+
-  '            and  (TASK."ftime" = :ptime))'#13+
-  '          or ((TASK."fperiod" = 4)'#13+
-  '            and (substr(TASK."fdate",1,2) = substr(:pdate,1,2))'#13+
-  '            and (TASK."ftime" = :ptime))'#13+
-  '          or ((TASK."fperiod" = 3)'#13+
-  '            and (TASK."fdayofweek" = :pdayofweek)'#13+
-  '            and (TASK."ftime" = :ptime))'#13+
-  '          or ((TASK."fperiod" = 2)'#13+
-  '            and (TASK."ftime" = :ptime))'#13+
-  '          or ((TASK."fperiod" = 1)'#13+
-  '            and (substr(TASK."ftime",3,2) = substr(:ptime,3,2)))'#13+
-  '          or (TASK."fperiod" = 0))';
+                     'select   TASK.id as ataskid'#13+
+                     '       , TASK."fname"'#13+
+                     '       , TASK."fsourcefolder"'#13+
+                     '       , TASK."ftargetfolder"'#13+
+                     '       , TASK."ftargetfile"'#13+
+                     '       , TASK."farchivator"'#13+
+                     '       , TASK."farchivatoroptions"'#13+
+                     '       , TASK."fperiod"'#13+
+                     '       , TASK."ftime"'#13+
+                     '       , TASK."fdayofweek"'#13+
+                     '       , TASK."fdate"'#13+
+                     '       , TASK."frunbeforebackup"'#13+
+                     '       , TASK."frunafterbackup"'#13+
+                     '       , ARC."fname"'#13+
+                     '       , ARC."fextension"'#13+
+                     '       , ARC."fpackpath"'#13+
+                     '       , ARC."fpackoptions"'#13+
+                     '  from tbltasks TASK'#13+
+                     '  inner join tblarchivators ARC'#13+
+                     '    on ARC."id"=TASK."farchivator"'#13+
+                     '  where     (TASK."fstatus">1)'#13+
+                     '        and (ARC."fstatus"=1)'#13+
+                     '        and (((TASK."fperiod" = 5)'#13+
+                     '            and  (TASK."fdate" = :pdate)'#13+
+                     '            and  (TASK."ftime" = :ptime))'#13+
+                     '          or ((TASK."fperiod" = 4)'#13+
+                     '            and (substr(TASK."fdate",1,2) = substr(:pdate,1,2))'#13+
+                     '            and (TASK."ftime" = :ptime))'#13+
+                     '          or ((TASK."fperiod" = 3)'#13+
+                     '            and (TASK."fdayofweek" = :pdayofweek)'#13+
+                     '            and (TASK."ftime" = :ptime))'#13+
+                     '          or ((TASK."fperiod" = 2)'#13+
+                     '            and (TASK."ftime" = :ptime))'#13+
+                     '          or ((TASK."fperiod" = 1)'#13+
+                     '            and (substr(TASK."ftime",3,2) = substr(:ptime,3,2)))'#13+
+                     '          or (TASK."fperiod" = 0))';
 {$endregion}
 var lsLogName : String;
     lsDate, lsTime : String;
