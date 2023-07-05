@@ -135,9 +135,7 @@ const
         '               ARC.fextension,'#13+
         '               ARC.fpackpath,'#13+
         '               ARC.fpackoptions,'#13+
-        //'               case TASK.fstatus when 2 then ''Активна'' else ''Неактивна'' end as astatus'#13+
-        //'               ''АБВГДЕЁЖЗИКЛМНОПРСТУФХЦЧЪЫЬЭЮЯ'' as astatus'#13+
-        '               ''абвгдеёжзиклмнопрстуфхцчъыьэюя'' as astatus'#13+
+        '               case TASK.fstatus when 2 then cast(''Активна'' as varchar(12)) else cast(''Неактивна'' as varchar(16)) end as astatus'#13+
         '          from tbltasks TASK'#13+
         '          inner join tblarchivators ARC'#13+
         '            on ARC.id=TASK.farchivator'#13+

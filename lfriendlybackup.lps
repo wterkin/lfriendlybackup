@@ -59,9 +59,9 @@
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="871"/>
-        <CursorPos X="40" Y="885"/>
-        <FoldState Value=" TJkg7P2 Pj3sH1 T3m90I113 pjZke0N7 picjg051]IRjc0C012]B9le080]ePViY01"/>
+        <TopLine Value="129"/>
+        <CursorPos X="125" Y="138"/>
+        <FoldState Value=" TJkg7P2 Pj3sH1 T3m90I113 pjZke0N7 picjg051]IRjc0C[947jP0B1]RfjF080]lPViY0h"/>
         <UsageCount Value="100"/>
         <Bookmarks Count="3">
           <Item0 Y="121" ID="9"/>
@@ -204,10 +204,6 @@
     <JumpHistory HistoryIndex="29">
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="614" Column="18" TopLine="596"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
         <Caret Line="852" Column="37" TopLine="832"/>
       </Position>
       <Position>
@@ -320,6 +316,10 @@
       <Position>
         <Filename Value="main.pas"/>
         <Caret Line="720" TopLine="521"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="661" TopLine="867"/>
       </Position>
     </JumpHistory>
     <RunParams>
