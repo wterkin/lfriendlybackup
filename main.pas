@@ -278,6 +278,9 @@ begin
   // *** Если включён режим отладки - выведем сообщение в заголовок и в лог
   MainForm.Caption := MainForm.Caption+' [отладка]';
   moLog.WriteLN('debug mode on');
+  Timer.Interval := 10000;
+  {$else}
+  Timer.Interval = 60000;
   {$endif}
 
   // *** Так как у нас DLLки лежат в папке DLL, мы должны туда перейти
@@ -529,41 +532,41 @@ procedure TfmMain.TimerTimer(Sender: TObject);
 {$region}
 const csSelectTask =
                      'select   TASK.id as ataskid'#13+
-                     '       , TASK."fname"'#13+
-                     '       , TASK."fsourcefolder"'#13+
-                     '       , TASK."ftargetfolder"'#13+
-                     '       , TASK."ftargetfile"'#13+
-                     '       , TASK."farchivator"'#13+
-                     '       , TASK."farchivatoroptions"'#13+
-                     '       , TASK."fperiod"'#13+
-                     '       , TASK."ftime"'#13+
-                     '       , TASK."fdayofweek"'#13+
-                     '       , TASK."fdate"'#13+
-                     '       , TASK."frunbeforebackup"'#13+
-                     '       , TASK."frunafterbackup"'#13+
-                     '       , ARC."fname"'#13+
-                     '       , ARC."fextension"'#13+
-                     '       , ARC."fpackpath"'#13+
-                     '       , ARC."fpackoptions"'#13+
+                     '       , TASK.fname'#13+
+                     '       , TASK.fsourcefolder'#13+
+                     '       , TASK.ftargetfolder'#13+
+                     '       , TASK.ftargetfile'#13+
+                     '       , TASK.farchivator'#13+
+                     '       , TASK.farchivatoroptions'#13+
+                     '       , TASK.fperiod'#13+
+                     '       , TASK.ftime'#13+
+                     '       , TASK.fdayofweek'#13+
+                     '       , TASK.fdate'#13+
+                     '       , TASK.frunbeforebackup'#13+
+                     '       , TASK.frunafterbackup'#13+
+                     '       , ARC.fname'#13+
+                     '       , ARC.fextension'#13+
+                     '       , ARC.fpackpath'#13+
+                     '       , ARC.fpackoptions'#13+
                      '  from tbltasks TASK'#13+
                      '  inner join tblarchivators ARC'#13+
-                     '    on ARC."id"=TASK."farchivator"'#13+
-                     '  where     (TASK."fstatus">1)'#13+
-                     '        and (ARC."fstatus"=1)'#13+
-                     '        and (((TASK."fperiod" = 5)'#13+
-                     '            and  (TASK."fdate" = :pdate)'#13+
-                     '            and  (TASK."ftime" = :ptime))'#13+
-                     '          or ((TASK."fperiod" = 4)'#13+
-                     '            and (substr(TASK."fdate",1,2) = substr(:pdate,1,2))'#13+
-                     '            and (TASK."ftime" = :ptime))'#13+
-                     '          or ((TASK."fperiod" = 3)'#13+
-                     '            and (TASK."fdayofweek" = :pdayofweek)'#13+
-                     '            and (TASK."ftime" = :ptime))'#13+
-                     '          or ((TASK."fperiod" = 2)'#13+
-                     '            and (TASK."ftime" = :ptime))'#13+
-                     '          or ((TASK."fperiod" = 1)'#13+
-                     '            and (substr(TASK."ftime",3,2) = substr(:ptime,3,2)))'#13+
-                     '          or (TASK."fperiod" = 0))';
+                     '    on ARC.id=TASK.farchivator'#13+
+                     '  where     (TASK.fstatus>1)'#13+
+                     '        and (ARC.fstatus=1)'#13+
+                     '        and (((TASK.fperiod = 5)'#13+
+                     '            and  (TASK.fdate = :pdate)'#13+
+                     '            and  (TASK.ftime = :ptime))'#13+
+                     '          or ((TASK.fperiod = 4)'#13+
+                     '            and (left(TASK.fdate,2) = left(cast(:pdate as varchar(5)),2))'#13+
+                     '            and (TASK.ftime = :ptime))'#13+
+                     '         /* or ((TASK.fperiod = 3)'#13+
+                     '            and (TASK.fdayofweek = :pdayofweek)'#13+
+                     '            and (TASK.ftime = :ptime))'#13+
+                     '          or ((TASK.fperiod = 2)'#13+
+                     '            and (TASK.ftime = :ptime))'#13+
+                     '          or ((TASK.fperiod = 1)'#13+
+                     '            and (substring(TASK.ftime from 3 for 2) = substring(cast(:ptime as varchar(5) from 3 for 2)))'#13+
+                     '          or (TASK.fperiod = 0)*/)';
 {$endregion}
 var lsLogName : String;
     lsDate, lsTime : String;
@@ -598,7 +601,7 @@ begin
     initializeQuery(qrTaskExecute, csSelectTask);
     qrTaskExecute.ParamByName('pdate').AsString := lsDate;
     qrTaskExecute.ParamByName('ptime').AsString := lsTime;
-    qrTaskExecute.ParamByName('pdayofweek').AsInteger := DayOfTheWeek(Now);
+    // qrTaskExecute.ParamByName('pdayofweek').AsInteger := DayOfTheWeek(Now);
     qrTaskExecute.open();
     while not qrTaskExecute.EOF do
     begin
@@ -866,7 +869,6 @@ end;
 
 procedure TfmMain.reopenTables;
 var liID : Integer;
-    s : String;
 begin
   liID := -1;
   try
@@ -877,12 +879,10 @@ begin
       liID := qrTasks.FieldByName('ataskid').AsInteger;
 		end;
 		initializeQuery(qrTasks, csSQLSelectTasks);
-    // qrTasks.SQL.SaveToFile('../111.sql');
     qrTasks.ParamByName('pstatus').AsInteger:=ciStatusInActive;
     qrTasks.Open;
     qrTasks.First;
     qrTasks.Locate('ataskid', liID, []);
-    //s:=qrTasks.FieldByName('astatus').AsString;
     // *** Разрешим / запретим кнопки в зависимости от состояния выборки
     actEditTask.Enabled := qrTasks.RecordCount > 0;
     actDeleteTask.Enabled := actEditTask.Enabled;
