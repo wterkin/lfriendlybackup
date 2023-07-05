@@ -10,7 +10,7 @@
         <IsPartOfProject Value="True"/>
         <TopLine Value="15"/>
         <CursorPos X="41" Y="26"/>
-        <UsageCount Value="96"/>
+        <UsageCount Value="100"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -22,7 +22,7 @@
         <EditorIndex Value="3"/>
         <TopLine Value="85"/>
         <CursorPos X="44" Y="90"/>
-        <UsageCount Value="96"/>
+        <UsageCount Value="100"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit>
@@ -36,7 +36,7 @@
         <EditorIndex Value="4"/>
         <TopLine Value="133"/>
         <CursorPos X="35" Y="134"/>
-        <UsageCount Value="96"/>
+        <UsageCount Value="100"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit>
@@ -49,7 +49,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="96"/>
+        <UsageCount Value="100"/>
       </Unit>
       <Unit>
         <Filename Value="main.pas"/>
@@ -59,13 +59,14 @@
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="173"/>
-        <CursorPos X="7" Y="197"/>
-        <UsageCount Value="96"/>
+        <TopLine Value="871"/>
+        <CursorPos X="40" Y="885"/>
+        <FoldState Value=" TJkg7P2 Pj3sH1 T3m90I113 pjZke0N7 picjg051]IRjc0C012]B9le080]ePViY01"/>
+        <UsageCount Value="100"/>
         <Bookmarks Count="3">
-          <Item0 Y="123" ID="9"/>
-          <Item1 X="18" Y="578" ID="2"/>
-          <Item2 X="2" Y="411" ID="1"/>
+          <Item0 Y="121" ID="9"/>
+          <Item1 X="18" Y="570" ID="2"/>
+          <Item2 X="2" Y="405" ID="1"/>
         </Bookmarks>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -79,7 +80,7 @@
         <EditorIndex Value="2"/>
         <TopLine Value="546"/>
         <CursorPos X="21" Y="568"/>
-        <UsageCount Value="96"/>
+        <UsageCount Value="100"/>
         <Bookmarks Count="1">
           <Item0 X="8" Y="495" ID="6"/>
         </Bookmarks>
@@ -93,7 +94,7 @@
         <TopLine Value="111"/>
         <CursorPos X="6" Y="134"/>
         <FoldState Value=" T3i40551B PjHkZ0m"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="57"/>
       </Unit>
       <Unit>
         <Filename Value="unit1.pas"/>
@@ -108,7 +109,7 @@
         <EditorIndex Value="11"/>
         <TopLine Value="96"/>
         <CursorPos X="55" Y="107"/>
-        <UsageCount Value="48"/>
+        <UsageCount Value="50"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -116,7 +117,7 @@
         <EditorIndex Value="10"/>
         <TopLine Value="131"/>
         <CursorPos X="7" Y="135"/>
-        <UsageCount Value="48"/>
+        <UsageCount Value="50"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -137,7 +138,7 @@
         <EditorIndex Value="9"/>
         <TopLine Value="20"/>
         <CursorPos Y="40"/>
-        <UsageCount Value="44"/>
+        <UsageCount Value="46"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -145,14 +146,14 @@
         <EditorIndex Value="8"/>
         <TopLine Value="143"/>
         <CursorPos Y="157"/>
-        <UsageCount Value="43"/>
+        <UsageCount Value="45"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="..\tlib5\tapp.pas"/>
         <EditorIndex Value="7"/>
         <CursorPos X="30" Y="26"/>
-        <UsageCount Value="43"/>
+        <UsageCount Value="45"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -167,7 +168,7 @@
         <EditorIndex Value="5"/>
         <TopLine Value="10"/>
         <CursorPos X="7" Y="24"/>
-        <UsageCount Value="33"/>
+        <UsageCount Value="35"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -175,7 +176,7 @@
         <EditorIndex Value="6"/>
         <TopLine Value="14"/>
         <CursorPos X="37" Y="52"/>
-        <UsageCount Value="16"/>
+        <UsageCount Value="18"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -201,41 +202,6 @@
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="602" Column="19" TopLine="597"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="399" TopLine="286"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="73" Column="28" TopLine="53"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="74" Column="23" TopLine="54"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="75" Column="23" TopLine="55"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="76" Column="22" TopLine="56"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="749" Column="25" TopLine="729"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="750" Column="27" TopLine="730"/>
-      </Position>
       <Position>
         <Filename Value="main.pas"/>
         <Caret Line="614" Column="18" TopLine="596"/>
@@ -320,6 +286,41 @@
         <Filename Value="main.pas"/>
         <Caret Line="800" Column="70" TopLine="780"/>
       </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="700" Column="27" TopLine="677"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="866" TopLine="866"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="882" Column="5" TopLine="868"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="866" Column="5" TopLine="854"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="139" Column="87" TopLine="126"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="299" TopLine="245"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="886" TopLine="867"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="720" TopLine="521"/>
+      </Position>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
@@ -344,6 +345,9 @@
     <Watches>
       <Item>
         <Expression Value="MainForm.moTasks.moQuery.State"/>
+      </Item>
+      <Item>
+        <Expression Value="s"/>
       </Item>
     </Watches>
   </Debugging>

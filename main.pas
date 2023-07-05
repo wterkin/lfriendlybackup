@@ -97,14 +97,12 @@ type
   private
 
     moLog : TEasyLog;
-    //moTaskExecuteQuery : TEasySQLite;
     procedure createDatabaseIfNeeded();
     procedure analizeCmdLine();
     procedure processTask();
     procedure refreshRunningFile();
   public
 
-    //moTasks : TEasySQLite;
     procedure reopenTables();
     function RusDayOfWeek(pdtDate : TDateTime = NullDate) : Integer;
     procedure processError(psDesc, psDetail : String);
@@ -137,7 +135,9 @@ const
         '               ARC.fextension,'#13+
         '               ARC.fpackpath,'#13+
         '               ARC.fpackoptions,'#13+
-        '               case TASK.fstatus when 2 then ''Активна'' else ''Неактивна'' end as astatus'#13+
+        //'               case TASK.fstatus when 2 then ''Активна'' else ''Неактивна'' end as astatus'#13+
+        //'               ''АБВГДЕЁЖЗИКЛМНОПРСТУФХЦЧЪЫЬЭЮЯ'' as astatus'#13+
+        '               ''абвгдеёжзиклмнопрстуфхцчъыьэюя'' as astatus'#13+
         '          from tbltasks TASK'#13+
         '          inner join tblarchivators ARC'#13+
         '            on ARC.id=TASK.farchivator'#13+
@@ -293,8 +293,10 @@ end;
 
 procedure TfmMain.dbgTasksPrepareCanvas(sender: TObject; DataCol: Integer;
   Column: TColumn; AState: TGridDrawState);
+//var s : string;
 begin
 
+  //s:=dbgTasks.Columns[0].Field.AsString;
   // *** Если последний запуск был успешен, отрисуем надпись другим цветом
   dbgTasks.Canvas.Font.Color:=iif(qrTasks.FieldByName('flastrunresult').AsInteger>0,
   clColorLastRunSuccessful, clColorLastRunUnSuccessful);
@@ -595,7 +597,6 @@ begin
     DateTimeToString(lsTime, 'hh:nn', Now());
     DateTimeToString(lsDate, 'dd.mm', Now());
     {$endif}
-    //moTasks.store();
     initializeQuery(qrTaskExecute, csSelectTask);
     qrTaskExecute.ParamByName('pdate').AsString := lsDate;
     qrTaskExecute.ParamByName('ptime').AsString := lsTime;
@@ -659,58 +660,58 @@ end;
 
 procedure TfmMain.createDatabaseIfNeeded;
 {$region 'SQL'}
-const csSQLCreateScript =
-        'create domain tid as integer not null;'#13+
-        'create domain tshortstr as varchar(64);'#13+
-        'create domain tnormalstr as varchar(128);'#13+
-        'create domain tlongstr as varchar(256);'#13+
-        'create domain thugestr as varchar(512);'#13+
-        'create domain tinteger as integer;'#13+
-        'set term !!;'#13+
-        'create table tblarchivators ('#13+
-        '    id tid,'#13+
-        '    fname tshortstr not null,'#13+
-        '    fpackpath tlongstr not null,'#13+
-        '    fpackoptions tnormalstr,'#13+
-        '    funpackpath tlongstr,'#13+
-        '    funpackoptions tnormalstr,'#13+
-        '    fextension tshortstr not null,'#13+
-        '    fstatus tinteger not null'#13+
-        ')!!'#13+
-        'create generator genarchivators!!'#13+
-        'create trigger trgarchivators for tblarchivators'#13+
-        '  active before insert position 1 as begin'#13+
-        '  if ((new.id is null) or (new.id = 0)) then'#13+
-        '    new.id=gen_id(genarchivators,1);'#13+
-        'end!!'#13+
-        'create ascending index idxarchivators on tblarchivators(fname)!!'#13+
-        'create table tbltasks('#13+
-        '  id tid,'#13+
-        '  fname tnormalstr not null,'#13+
-        '  fsourcefolder thugestr not null,'#13+
-        '  ftargetfolder thugestr not null,'#13+
-        '  ftargetfile thugestr not null,'#13+
-        '  farchivator tinteger not null,'#13+
-        '  farchivatoroptions thugestr not null,'#13+
-        '  fperiod tinteger not null,'#13+
-        '  ftime tshortstr,'#13+
-        '  fdayofweek tinteger not null,'#13+
-        '  fdate tshortstr, '#13+
-        '  flastrundate tinteger,'#13+
-        '  flastrunresult tinteger,'#13+
-        '  frunafterbackup thugestr, '#13+
-        '  frunbeforebackup thugestr, '#13+
-        '  fstatus tinteger not null'#13+
-        '  )!!'#13+
-        'create generator gentasks!!'#13+
-        'create trigger trgtasks for tbltasks'#13+
-        '  active before insert position 1 as begin'#13+
-        '  if ((new.id is null) or (new.id = 0)) then'#13+
-        '    new.id=gen_id(gentasks,1);'#13+
-        'end!!'#13+
-        'create ascending index idxtasks on tbltasks(fname)!!'#13+
-        'commit;';
+const csSQLCreateScript = 'create domain tid as integer not null;'#13+
+                          'create domain tshortstr as varchar(64);'#13+
+                          'create domain tnormalstr as varchar(128);'#13+
+                          'create domain tlongstr as varchar(256);'#13+
+                          'create domain thugestr as varchar(512);'#13+
+                          'create domain tinteger as integer;'#13+
+                          'set term !!;'#13+
+                          'create table tblarchivators ('#13+
+                          '    id tid,'#13+
+                          '    fname tshortstr not null,'#13+
+                          '    fpackpath tlongstr not null,'#13+
+                          '    fpackoptions tnormalstr,'#13+
+                          '    funpackpath tlongstr,'#13+
+                          '    funpackoptions tnormalstr,'#13+
+                          '    fextension tshortstr not null,'#13+
+                          '    fstatus tinteger not null'#13+
+                          ')!!'#13+
+                          'create generator genarchivators!!'#13+
+                          'create trigger trgarchivators for tblarchivators'#13+
+                          '  active before insert position 1 as begin'#13+
+                          '  if ((new.id is null) or (new.id = 0)) then'#13+
+                          '    new.id=gen_id(genarchivators,1);'#13+
+                          'end!!'#13+
+                          'create ascending index idxarchivators on tblarchivators(fname)!!'#13+
+                          'create table tbltasks('#13+
+                          '  id tid,'#13+
+                          '  fname tnormalstr not null,'#13+
+                          '  fsourcefolder thugestr not null,'#13+
+                          '  ftargetfolder thugestr not null,'#13+
+                          '  ftargetfile thugestr not null,'#13+
+                          '  farchivator tinteger not null,'#13+
+                          '  farchivatoroptions thugestr not null,'#13+
+                          '  fperiod tinteger not null,'#13+
+                          '  ftime tshortstr,'#13+
+                          '  fdayofweek tinteger not null,'#13+
+                          '  fdate tshortstr, '#13+
+                          '  flastrundate tinteger,'#13+
+                          '  flastrunresult tinteger,'#13+
+                          '  frunafterbackup thugestr, '#13+
+                          '  frunbeforebackup thugestr, '#13+
+                          '  fstatus tinteger not null'#13+
+                          '  )!!'#13+
+                          'create generator gentasks!!'#13+
+                          'create trigger trgtasks for tbltasks'#13+
+                          '  active before insert position 1 as begin'#13+
+                          '  if ((new.id is null) or (new.id = 0)) then'#13+
+                          '    new.id=gen_id(gentasks,1);'#13+
+                          'end!!'#13+
+                          'create ascending index idxtasks on tbltasks(fname)!!'#13+
+                          'commit;';
 {$endregion}
+var lsMessage : String;
 begin
 
   IBC.DatabaseName := getAppFolder()+'DB\'+csDatabaseFileName;
@@ -724,10 +725,12 @@ begin
     if FileExists(IBC.DatabaseName) then
     begin
 
+      lsMessage := 'При соединении с базой данных';
       IBC.Open;
     end else
     begin
 
+      lsMessage := 'При создании базы данных';
       IBC.CreateDB();
       IBC.Open();
       trCreate.EndTransaction;
@@ -741,14 +744,13 @@ begin
     on E : Exception do
     begin
 
-      processException('При соединении с базой данных возникла исключительная ситуация: ', E);
+      processException(lsMessage + ' возникла исключительная ситуация: ', E);
  		end;
  	end;
   qrTasks.Transaction := trTasks;
   qrTaskEx.Transaction := trTaskEx;
   qrTaskExecute.Transaction := trTaskExecute;
   scrCreate.Transaction := trCreate;
-
 end;
 
 
@@ -866,6 +868,7 @@ end;
 
 procedure TfmMain.reopenTables;
 var liID : Integer;
+    s : String;
 begin
   liID := -1;
   try
@@ -876,10 +879,12 @@ begin
       liID := qrTasks.FieldByName('ataskid').AsInteger;
 		end;
 		initializeQuery(qrTasks, csSQLSelectTasks);
+    // qrTasks.SQL.SaveToFile('../111.sql');
     qrTasks.ParamByName('pstatus').AsInteger:=ciStatusInActive;
     qrTasks.Open;
     qrTasks.First;
     qrTasks.Locate('ataskid', liID, []);
+    //s:=qrTasks.FieldByName('astatus').AsString;
     // *** Разрешим / запретим кнопки в зависимости от состояния выборки
     actEditTask.Enabled := qrTasks.RecordCount > 0;
     actDeleteTask.Enabled := actEditTask.Enabled;

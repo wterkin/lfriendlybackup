@@ -235,6 +235,7 @@ object fmMain: TfmMain
     ShowHint = True
   end
   object qrTasks: TSQLQuery
+    PacketRecords = 1
     MaxIndexesCount = 4
     FieldDefs = <    
       item
@@ -377,6 +378,10 @@ object fmMain: TfmMain
         Name = 'fstatus_1'
         DataType = ftInteger
         Precision = -1
+      end    
+      item
+        Name = 'astatus'
+        DataType = ftString
       end>
     AfterScroll = qrTasksAfterScroll
     Database = IBC
