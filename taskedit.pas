@@ -71,6 +71,8 @@ type
     sbTargetFileFormatHelp: TSpeedButton;
     qrArchivators: TSQLQuery;
     qrTasksEx: TSQLQuery;
+		trArchivators: TSQLTransaction;
+		trTaskEx: TSQLTransaction;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
@@ -94,7 +96,7 @@ type
     moMode : TDBMode;
     miID   : Integer;
     miArchivatorId : Integer;
-    moLookup       : TEasyLookupCombo;
+    moArchLookup       : TEasyLookupCombo;
     procedure initData();
     procedure storeData();
     procedure loadData();
@@ -237,23 +239,26 @@ procedure TfmTaskEdit.FormCreate(Sender: TObject);
 begin
 
   inherited;
-  moLookup := TEasyLookupCombo.Create();
-  moLookup.setComboBox(cbArchivator);
-  moLookup.setQuery(qrArchivators);
-  moLookup.setSQL('select * from tblarchivators where fstatus>0');
-  moLookup.setKeyField('id');
-  moLookup.setListField('fname');
+  moArchLookup := TEasyLookupCombo.Create();
+  moArchLookup.setComboBox(cbArchivator);
+  moArchLookup.setQuery(qrArchivators);
+  moArchLookup.setSQL('select * from tblarchivators where fstatus>0');
+  moArchLookup.setKeyField('id');
+  moArchLookup.setListField('fname');
+  qrTasksEx.Transaction := trTaskEx;
+  qrArchivators.Transaction := trArchivators;
 end;
 
 
 procedure TfmTaskEdit.FormDestroy(Sender: TObject);
 begin
 
-  FreeAndNil(moLookup);
+  FreeAndNil(moArchLookup);
 end;
 
 
 procedure TfmTaskEdit.bbtOkClick(Sender: TObject);
+var lsMessage : String;
 begin
 
   if ValidateData() then
@@ -261,30 +266,28 @@ begin
 
     try
 
-      MainForm.moTasks.store();
-      MainForm.Transact.EndTransaction;
-      MainForm.Transact.StartTransaction;
-
       //***** Зажигаем! Let's rock!
       if moMode = dmInsert then
       begin
 
+        lsMessage := 'Создание';
         initializeQuery(qrTasksEx, csSQLInsertTask, False);
       end
       else
       begin
 
+        lsMessage := 'Изменение';
         initializeQuery(qrTasksEx, csSQLUpdateTask, False);
       end;
       StoreData();
-      qrTasksEx.ExecSQL;
-      MainForm.Transact.Commit;
+      qrTasksEx.ExecSQL();
+      trTaskEx.Commit();
     except
       on E : Exception do
       begin
 
-        MainForm.processException('Изменение задачи привело к возникновению исключительной ситуации: ', E);
-        MainForm.Transact.Rollback;
+        trTaskEx.Rollback;
+        MainForm.processException(lsMessage + ' задачи привело к исключительной ситуации: ', E);
 		  end;
     end;
     ModalResult := mrOk;
@@ -381,9 +384,8 @@ begin
   udDay.Position := DayOf(Now);
   udMonth.Position := MonthOf(Now);
   edRunBeforeBackup.Text := '';
-  edRunBeforeBackup.Text := '';
-  moLookup.fill();
-  MainForm.reopenTables();
+  edRunAfterBackup.Text := '';
+  moArchLookup.fill();
 end;
 
 
@@ -403,7 +405,7 @@ begin
 	end;
   qrTasksEx.ParamByName('ptargetfolder').AsString := edTargetFolder.Text;
   qrTasksEx.ParamByName('ptargetfile').AsString := edTargetFormat.Text;
-  qrTasksEx.ParamByName('parchivator').AsInteger := moLookup.getIntKey();
+  qrTasksEx.ParamByName('parchivator').AsInteger := moArchLookup.getIntKey();
   qrTasksEx.ParamByName('parchivatoroptions').AsString := edArchivatorOptions.Text;
   qrTasksEx.ParamByName('pperiod').AsInteger := cbPeriod.ItemIndex;
   if edHour.Enabled then
@@ -465,9 +467,8 @@ end;
 
 procedure TfmTaskEdit.loadData();
 begin
-
-  edName.Text := MainForm.moTasks.StringField('fname');
-  edSource.Text := MainForm.moTasks.StringField('fsourcefolder');
+  edName.Text := MainForm.qrTasks.FieldByName('fname').AsString;
+  edSource.Text := MainForm.qrTasks.FieldByName('fsourcefolder').AsString;
 
   cbSubject.ItemIndex:=0;
   if (Length(edSource.Text) > 0) and
@@ -481,10 +482,10 @@ begin
 
     cbSubject.ItemIndex := 0;
   end;
-  edTargetFolder.Text := MainForm.moTasks.StringField('ftargetfolder');
-  edTargetFormat.Text := MainForm.moTasks.StringField('ftargetfile');
-  edArchivatorOptions.Text := MainForm.moTasks.StringField('farchivatoroptions');
-  cbPeriod.ItemIndex := MainForm.moTasks.IntegerField('fperiod');
+  edTargetFolder.Text := MainForm.qrTasks.FieldByName('ftargetfolder').AsString;
+  edTargetFormat.Text := MainForm.qrTasks.FieldByName('ftargetfile').AsString;
+  edArchivatorOptions.Text := MainForm.qrTasks.FieldByName('farchivatoroptions').AsString;
+  cbPeriod.ItemIndex := MainForm.qrTasks.FieldByName('fperiod').AsInteger;
 
   edMinute.Enabled := False;
   edHour.Enabled := False;
@@ -499,54 +500,66 @@ begin
     ciPeriodEachHour: begin
 
       edMinute.Enabled := True;
-      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
+      udMinute.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
     end;
     ciPeriodEachDay: begin
 
       edMinute.Enabled := True;
-      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
+      udMinute.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
       edHour.Enabled := True;
-      udHour.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 1, 2), 0);
+      udHour.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 1, 2), 0);
     end;
     ciPeriodEachWeek: begin
 
       edMinute.Enabled := True;
-      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
+      udMinute.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
       edHour.Enabled:=True;
-      udHour.Position:=StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 1, 2), 0);
-      cbWeekDay.ItemIndex:=MainForm.moTasks.IntegerField('fdayofweek')-1;
+      udHour.Position:=StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 1, 2), 0);
+      cbWeekDay.ItemIndex:=MainForm.qrTasks.FieldByName('fdayofweek').AsInteger - 1;
     end;
     ciPeriodEachMonth:begin
 
       edMinute.Enabled := True;
-      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
+      udMinute.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
       edHour.Enabled := True;
-      udHour.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 1, 2), 0);
+      udHour.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 1, 2), 0);
       edDay.Enabled := True;
-      udDay.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('fdate'), 1, 2), 0);
+      udDay.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('fdate').AsString, 1, 2), 0);
     end;
     ciPeriodEachYear:begin
 
       edMinute.Enabled := True;
-      udMinute.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 4, 2), 0);
+      udMinute.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 4, 2), 0);
       edHour.Enabled := True;
-      udHour.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('ftime'), 1, 2), 0);
+      udHour.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('ftime').AsString, 1, 2), 0);
       edDay.Enabled := True;
-      udDay.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('fdate'), 1, 2), 0);
+      udDay.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('fdate').AsString, 1, 2), 0);
       edMonth.Enabled := True;
-      udMonth.Position := StrToIntDef(Copy(MainForm.moTasks.StringField('fdate'), 4, 2), 0);
+      udMonth.Position := StrToIntDef(Copy(MainForm.qrTasks.FieldByName('fdate').AsString, 4, 2), 0);
     end;
   end;
-  edRunBeforeBackup.Text := MainForm.moTasks.StringField('frunafterbackup');
-  moLookup.fill();
-  moLookup.setKey(miArchivatorId);
+  edRunBeforeBackup.Text := MainForm.qrTasks.FieldByName('frunafterbackup').AsString;
+
+  //MainForm.qrTasks.store();
+  moArchLookup.fill();
+  moArchLookup.setKey(miArchivatorId);
+  MainForm.qrTasks.Refresh();
 end;
 
 
 function TfmTaskEdit.validateData(): Boolean;
 begin
 
-  result := cbArchivator.ItemIndex >= 0;
+  Result := not isEmpty(edName.Text) and
+            not isEmpty(edSource.Text) and
+            not isEmpty(edSource.Text) and
+            (cbArchivator.ItemIndex >= 0);
+  if not Result then
+  begin
+
+    notify('Необходимо заполнить поле "Наименование задачи", ',
+           ' исходный и целевой каталог и выбрать архиватор.');
+	end;
 end;
 
 
@@ -554,8 +567,8 @@ procedure TfmTaskEdit.viewRecord();
 begin
 
   moMode := dmUpdate;
-  miID:=MainForm.moTasks.IntegerField('ataskid');
-  miArchivatorID:=MainForm.moTasks.IntegerField('farchivator');
+  miID:=MainForm.qrTasks.FieldByName('ataskid').AsInteger;
+  miArchivatorID:=MainForm.qrTasks.FieldByName('farchivator').AsInteger;
   loadData();
   cbPeriodChange(nil);
   ShowModal;

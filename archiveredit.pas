@@ -34,7 +34,9 @@ type
     sbPackPath: TSpeedButton;
     qrArchEx: TSQLQuery;
     sbUnpackPath: TSpeedButton;
+		trArchEx: TSQLTransaction;
     procedure bbtOkClick(Sender: TObject);
+		procedure FormCreate(Sender: TObject);
     procedure sbPackPathClick(Sender: TObject);
     procedure sbUnpackPathClick(Sender: TObject);
   private
@@ -100,30 +102,38 @@ begin
 
     try
 
-      MainForm.Transact.EndTransaction;
-      MainForm.Transact.StartTransaction;
+      //MainForm.Transact.EndTransaction;
+      //MainForm.Transact.StartTransaction;
 
       //***** Зажигаем! Let's rock!
       if moMode=dmInsert then
       begin
 
-        initializeQuery(qrArchEx,csSQLInsertArchivator,False);
+        initializeQuery(qrArchEx,csSQLInsertArchivator);
       end
       else
       begin
 
-        initializeQuery(qrArchEx,csSQLUpdateArchivator,False);
+        initializeQuery(qrArchEx,csSQLUpdateArchivator);
       end;
       StoreData();
+      qrArchEx.SQL.SaveToFile('../111');
       qrArchEx.ExecSQL;
-      MainForm.Transact.Commit;
+      trArchEx.Commit();
+      //MainForm.Transact.Commit;
     except
 
-      MainForm.Transact.Rollback;
+      trArchEx.Rollback;
       FatalError('Error!','Database request failed!');
     end;
     ModalResult:=mrOk;
   end
+end;
+
+procedure TfmArchivatorEdit.FormCreate(Sender: TObject);
+begin
+
+  qrArchEx.Transaction := trArchEx;
 end;
 
 

@@ -6,10 +6,9 @@ interface
 {$H+}
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Buttons, DBGrids, ComCtrls, sqlite3conn, sqldb, db, windows, Grids, StdCtrls,
-  Menus, ActnList, DateUtils, StrUtils, DateTimePicker,
-  tlib, tdb, tstr, tparams, tlog, tini, tapp, tmsg, tsqlite,
-  archivators, taskedit;
+	Buttons, DBGrids, ComCtrls, sqlite3conn, sqldb, IBConnection, db, windows,
+	Grids, StdCtrls, Menus, ActnList, DateUtils, StrUtils, DateTimePicker, tlib,
+	tdb, tstr, tparams, tlog, tini, tapp, tmsg, archivators, taskedit;
 
 type
 
@@ -52,6 +51,7 @@ type
     Button1: TButton;
     dbgTasks: TDBGrid;
     dsTasks: TDataSource;
+		IBC: TIBConnection;
 		ImageList: TImageList;
     miDeactivate: TMenuItem;
     miActivate: TMenuItem;
@@ -65,14 +65,16 @@ type
     sbStart: TSpeedButton;
     sbDelete: TSpeedButton;
     sbClose: TSpeedButton;
-    SQLite: TSQLite3Connection;
     qrTasks: TSQLQuery;
-    qrTaskExt: TSQLQuery;
-		qrTaskUpdate: TSQLQuery;
-		SQLTransaction1: TSQLTransaction;
+    qrTaskEx: TSQLQuery;
+		scrCreate: TSQLScript;
+		qrTaskExecute: TSQLQuery;
+		trTaskExecute: TSQLTransaction;
+		trCreate: TSQLTransaction;
+		trTaskEx: TSQLTransaction;
+		trTasks: TSQLTransaction;
     StatusBar1: TStatusBar;
     Timer: TTimer;
-    Transact: TSQLTransaction;
     TrayIcon: TTrayIcon;
 		procedure actActivateTaskExecute(Sender: TObject);
     procedure actCreateTaskExecute(Sender: TObject);
@@ -84,8 +86,8 @@ type
     procedure dbgTasksDblClick(Sender: TObject);
     procedure dbgTasksPrepareCanvas({%H-}sender: TObject; {%H-}DataCol: Integer;
       {%H-}Column: TColumn; {%H-}AState: TGridDrawState);
-    procedure FormActivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var {%H-}CloseAction: TCloseAction);
+		procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
     procedure FormWindowStateChange(Sender: TObject);
     procedure qrTasksAfterScroll({%H-}DataSet: TDataSet);
@@ -95,15 +97,12 @@ type
   private
 
     moLog : TEasyLog;
-    moTaskExecuteQuery : TEasySQLite;
     procedure createDatabaseIfNeeded();
     procedure analizeCmdLine();
     procedure processTask();
     procedure refreshRunningFile();
-    procedure AfterScroll();
   public
 
-    moTasks : TEasySQLite;
     procedure reopenTables();
     function RusDayOfWeek(pdtDate : TDateTime = NullDate) : Integer;
     procedure processError(psDesc, psDetail : String);
@@ -114,49 +113,53 @@ type
   TTaskInfoArray = array of TTaskInfo;
 
 const
-    {$region 'SQL'}
+      {$region 'SQL'}
       csSQLSelectTasks =
-        'select TASK."id" as "ataskid",'#13+
-        '               TASK."fname",'#13+
-        '               TASK."fsourcefolder",'#13+
-        '               TASK."ftargetfolder",'#13+
-        '               TASK."ftargetfile",'#13+
-        '               TASK."farchivator",'#13+
-        '               TASK."farchivatoroptions",'#13+
-        '               TASK."fperiod",'#13+
-        '               TASK."ftime",'#13+
-        '               TASK."fdayofweek",'#13+
-        '               TASK."fdate",'#13+
-        '               TASK."frunbeforebackup",'#13+
-        '               TASK."frunafterbackup",'#13+
-        '               TASK."flastrundate",'#13+
-        '               TASK."flastrunresult",'#13+
-        '               TASK."fstatus",'#13+
-        '               ARC."fname",'#13+
-        '               ARC."fextension",'#13+
-        '               ARC."fpackpath",'#13+
-        '               ARC."fpackoptions",'#13+
-        '               case TASK."fstatus" when 2 then ''Активна'' else ''Неактивна'' end as astatus'#13+
+        'select TASK.id as ataskid,'#13+
+        '               TASK.fname,'#13+
+        '               TASK.fsourcefolder,'#13+
+        '               TASK.ftargetfolder,'#13+
+        '               TASK.ftargetfile,'#13+
+        '               TASK.farchivator,'#13+
+        '               TASK.farchivatoroptions,'#13+
+        '               TASK.fperiod,'#13+
+        '               TASK.ftime,'#13+
+        '               TASK.fdayofweek,'#13+
+        '               TASK.fdate,'#13+
+        '               TASK.frunbeforebackup,'#13+
+        '               TASK.frunafterbackup,'#13+
+        '               TASK.flastrundate,'#13+
+        '               TASK.flastrunresult,'#13+
+        '               TASK.fstatus,'#13+
+        '               ARC.fname,'#13+
+        '               ARC.fextension,'#13+
+        '               ARC.fpackpath,'#13+
+        '               ARC.fpackoptions,'#13+
+        '               case TASK.fstatus when 2 then cast(''Активна'' as varchar(12)) else cast(''Неактивна'' as varchar(16)) end as astatus'#13+
         '          from tbltasks TASK'#13+
         '          inner join tblarchivators ARC'#13+
-        '            on ARC."id"=TASK."farchivator"'#13+
-        '          where (TASK."fstatus">=:pstatus) and'#13+
-        '                (ARC."fstatus">0)';
+        '            on ARC.id=TASK.farchivator'#13+
+        '          where (TASK.fstatus >= :pstatus) and'#13+
+        '                (ARC.fstatus > 0)';
+        {$endregion}
 
-      {$endregion}
-
-      csDatabaseFileName         = 'lfriendlybackup.db';
+      csDatabaseFileName         = 'lfriendlybackup.fdb';
       csMainFormCaption          = 'Your friendly backup maker %s %s';
       csRunCmd                   = 'r';
+
       ciStatusDeleted            = 0;
       ciStatusInactive           = 1;
       ciStatusActive             = 2;
+
       clColorTaskActiveBkg       = clWindow;
       clColorTaskInActiveBkg     = $00D0D8E0;
+
       ciLastRunUnSuccessful      = 0;
       ciLastRunSuccessful        = 1;
+
       clColorLastRunUnSuccessful = $8F305B; // красный
       clColorLastRunSuccessful   = $224F15; //7DA035; // зеленый
+
       ciPeriodEachMinute         = 0;
       ciPeriodEachHour           = 1;
       ciPeriodEachDay            = 2;
@@ -164,6 +167,7 @@ const
       ciPeriodEachMonth          = 4;
       ciPeriodEachYear           = 5;
 
+      {$Region 'Format'}
       MyOwnFormatSettings : TFormatSettings = (
         CurrencyFormat    : 1;
         NegCurrFormat     : 5;
@@ -188,17 +192,25 @@ const
         LongDayNames      : ('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
         TwoDigitYearCenturyWindow: 50;
       );
-      csTimeStampMask  = 'yyyy/mm/dd hh:mm';
-      csControlChar    = '.';
-      csQuitFile       = csControlChar+'quit';
-      csRunningFile    = csControlChar+'iamrunning';
-      csIniFile        = 'lfriendlybackup.ini';
-      csVersion        = 'ver. 2.0.1';
-      ciIconStart      = 6;
-      ciIconStop       = 7;
-      ciIconDeactivate = 9;
-      ciIconActivate   = 10;
-      {$define __DEBUG__}
+      {$Endregion}
+      csTimeStampMask    = 'yyyy/mm/dd hh:mm';
+      csControlChar      = '.';
+      csQuitFile         = csControlChar+'quit';
+      csRunningFile      = csControlChar+'iamrunning';
+      csIniFile          = 'lfriendlybackup.ini';
+      csVersion          = 'ver. 2.1';
+      ciIconStart        = 6;
+      ciIconStop         = 7;
+      ciIconDeactivate   = 9;
+      ciIconActivate     = 10;
+      csLogsFolder       = 'logs/';
+      csDLLFolder        = 'DLL/';
+      csFireBirdUser     = 'SYSDBA';
+      csFireBirdPassword = 'masterkey';
+      csFireBirdCharSet  = 'utf8';
+      ciFireBirdDialect  = 3;
+      csFireBirdPageSize = '16384';
+      {define __DEBUG__}
 var
   fmMain   : TfmMain;
   MainForm : TfmMain;
@@ -208,34 +220,47 @@ implementation
 {$R *.lfm}
 
 { TfmMain }
-// ToDo: Сделать логгирование ошибок!
+procedure TfmMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+var loIniMgr : TEasyIniManager;
+begin
 
-procedure TfmMain.FormActivate(Sender: TObject);
+  // *** Сохраним настройки в инишке
+  loIniMgr := TEasyIniManager.Create(getAppFolder + csIniFile);
+  loIniMgr.write(fmMain);
+  loIniMgr.write(fmMain.dbgTasks);
+  FreeAndNil(loIniMgr);
+  // *** Закроем соединение с базой
+  qrTasks.Close;
+  IBC.Close();
+  // *** Закроем лог
+  moLog.WriteTimeStamp(csTimeStampMask);
+  moLog.WriteLN(' closed.');
+  moLog.Save();
+  // *** Грохнем файл флага работы
+  Windows.DeleteFileW(PWidechar(UnicodeString(getAppFolder + csRunningFile)));
+end;
+
+
+procedure TfmMain.FormCreate(Sender: TObject);
 var lsLogName : String;
     loIniMgr : TEasyIniManager;
 begin
 
-  OnActivate := Nil;
-  dbgTasks.FocusColor := clNavy; // * Синяя рамка выбранной ячейки
+  inherited;
   MainForm := fmMain;
   MainForm.Caption := Format(csMainFormCaption,[csVersion, 'остановлен']);
-  createDatabaseIfNeeded(); // * Создаем БД, если ее нет.
-  // *** Заведем объект выборки для грида
-  moTasks := TEasySQLite.Create();
-  moTasks.setup(SQLite, dsTasks);
-  reopenTables();
+  dbgTasks.FocusColor := clNavy; // * Синяя рамка выбранной ячейки
+
   // *** Прочитаем конфиг
-  loIniMgr := TEasyIniManager.Create(getAppFolder + csIniFile);
+  loIniMgr := TEasyIniManager.Create(getAppFolder() + csIniFile);
   loIniMgr.read(fmMain);
   loIniMgr.read(fmMain.dbgTasks);
   FreeAndNil(loIniMgr);
+
   // *** Что там в командной строке?
   analizeCmdLine();
-  // *** Заводим объект выборки задания
-  moTaskExecuteQuery := TEasySQLite.Create();
-  moTaskExecuteQuery.setup(SQLite);
   // *** Заведем лог
-  lsLogName := getAppFolder() + 'logs/' + FormatDateTime('yyyymmdd',Now) + '.log';
+  lsLogName := getAppFolder() + csLogsFolder + FormatDateTime('yyyymmdd', Now) + '.log';
   if FileExists(lsLogName) then
   begin
 
@@ -248,38 +273,22 @@ begin
 	moLog.WriteTimeStamp(csTimeStampMask);
   moLog.WriteLN(' started');
   moLog.Save;
+
   {$ifdef __DEBUG__}
+  // *** Если включён режим отладки - выведем сообщение в заголовок и в лог
   MainForm.Caption := MainForm.Caption+' [отладка]';
   moLog.WriteLN('debug mode on');
+  Timer.Interval := 10000;
+  {$else}
+  Timer.Interval := 60000;
   {$endif}
+
+  // *** Так как у нас DLLки лежат в папке DLL, мы должны туда перейти
+  ChDir(csDLLFolder);
+  createDatabaseIfNeeded(); // * Создаем БД, если ее нет.
+  reopenTables();
   // *** Обновим файл флага работы
   refreshRunningFile();
-  {$ifndef __DEBUG__}
-  Hide;
-  {$endif}
-end;
-
-
-procedure TfmMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
-var loIniMgr : TEasyIniManager;
-begin
-
-  // *** Грохнем файл флага работы
-  Windows.DeleteFileW(PWidechar(UnicodeString(getAppFolder + csRunningFile)));
-  // *** Закроем лог
-  moLog.WriteTimeStamp(csTimeStampMask);
-  moLog.WriteLN(' closed.');
-  moLog.Save();
-  // *** Сохраним настройки в инишке
-  loIniMgr := TEasyIniManager.Create(getAppFolder + csIniFile);
-  loIniMgr.write(fmMain);
-  loIniMgr.write(fmMain.dbgTasks);
-  FreeAndNil(loIniMgr);
-  // *** Закроем соединение с базой
-  qrTaskExt.Close;
-  FreeAndNil(moTaskExecuteQuery);
-  FreeAndNil(moTasks);
-  SQLite.Close();
 end;
 
 
@@ -288,10 +297,10 @@ procedure TfmMain.dbgTasksPrepareCanvas(sender: TObject; DataCol: Integer;
 begin
 
   // *** Если последний запуск был успешен, отрисуем надпись другим цветом
-  dbgTasks.Canvas.Font.Color:=iif(moTasks.integerField('flastrunresult')>0,
+  dbgTasks.Canvas.Font.Color:=iif(qrTasks.FieldByName('flastrunresult').AsInteger>0,
   clColorLastRunSuccessful, clColorLastRunUnSuccessful);
   // *** Если задача активна, фон зальем белым, иначе сереньким
-  dbgTasks.Canvas.Brush.Color:=iif(moTasks.integerField('fstatus')=2,
+  dbgTasks.Canvas.Brush.Color:=iif(qrTasks.FieldByName('fstatus').AsInteger=2,
     clColorTaskActiveBkg, clColorTaskInActiveBkg)
 end;
 
@@ -299,7 +308,6 @@ end;
 procedure TfmMain.dbgTasksDblClick(Sender: TObject);
 begin
 
-  moTasks.store();
   fmTaskEdit.viewRecord();
   reopenTables();
 end;
@@ -353,13 +361,13 @@ begin
 
   try
 
-    // *** Запомним текущую запись
-    moTasks.Store();
-    initializeQuery(qrTaskExt,'select count(*) as acount from tblarchivators where fstatus>0', False);
-    qrTaskExt.Open;
-    liCount := qrTaskExt.FieldByName('acount').AsInteger;
-    qrTaskExt.Close;
+    // *** Проверим, зарегистрирован ли хоть один архиватор
+    initializeQuery(qrTaskEx,'select count(*) as acount from tblarchivators where fstatus>0', False);
+    qrTaskEx.Open;
+    liCount := qrTaskEx.FieldByName('acount').AsInteger;
+    qrTaskEx.Close;
   except
+
     on E : Exception do
     begin
 
@@ -367,13 +375,13 @@ begin
 		end;
 	end;
 
-  reopenTables();
   // *** Если определен хоть один архиватор...
-  if liCount>0 then
+  if liCount > 0 then
   begin
 
     // *** Добавляем задачу.
-    fmTaskEdit.appendRecord()
+    fmTaskEdit.appendRecord();
+    reopenTables();
 	end else
   begin
 
@@ -390,18 +398,18 @@ begin
 
     try
 
-      initializeQuery(qrTaskExt,'delete from tbltasks where id=:pid', False);
-      qrTaskExt.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
-      qrTaskExt.ExecSQL;
-      Transact.Commit;
+      initializeQuery(qrTaskEx,'delete from tbltasks where id=:pid', False);
+      qrTaskEx.ParamByName('pid').AsInteger := qrTasks.FieldByName('ataskid').AsInteger;
+      qrTaskEx.ExecSQL;
+      trTaskEx.Commit;
       reopenTables();
     except
 
       on E : Exception do
       begin
 
+        trTaskEx.Rollback;
         processException('Удаление задачи привело к возникновению исключительной ситуации: ', E);
-        Transact.Rollback;
   		end;
     end;
   end;
@@ -428,29 +436,28 @@ begin
 
   try
 
-    // *** Запомним текущую запись
-    moTasks.store();
+    initializeQuery(qrTaskEx,'update tbltasks set fstatus=:pstatus where id=:pid', False);
     // *** Запишем статус активности
-    initializeQuery(qrTaskExt,'update tbltasks set "fstatus"=:pstatus where "id"=:pid', False);
-    if moTasks.integerField('fstatus') = ciStatusInactive then
+    if qrTasks.FieldByName('fstatus').AsInteger = ciStatusInactive then
     begin
 
-      qrTaskExt.ParamByName('pstatus').AsInteger := ciStatusActive;
+      qrTaskEx.ParamByName('pstatus').AsInteger := ciStatusActive;
     end else
     begin
 
-      qrTaskExt.ParamByName('pstatus').AsInteger := ciStatusInActive;
+      qrTaskEx.ParamByName('pstatus').AsInteger := ciStatusInActive;
 		end;
-		qrTaskExt.ParamByName('pid').AsInteger := moTasks.integerField('ataskid');
-    qrTaskExt.ExecSQL;
-    Transact.Commit;
+		qrTaskEx.ParamByName('pid').AsInteger := qrTasks.FieldByName('ataskid').AsInteger;
+    qrTaskEx.ExecSQL;
+    trTaskEx.Commit;
     reopenTables();
   except
+
     on E : Exception do
     begin
 
+      trTaskEx.Rollback;
       processException('Активация задачи привела к возникновению исключительной ситуации: ', E);
-      Transact.Rollback;
 		end;
   end;
 end;
@@ -463,8 +470,7 @@ begin
 end;
 
 
-procedure TfmMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
-  );
+procedure TfmMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
 
   // *** Нажали Escape -
@@ -515,7 +521,6 @@ end;
 procedure TfmMain.sbArchiversClick(Sender: TObject);
 begin
 
-  moTasks.store();
   fmArchivators.ShowModal();
   reopenTables();
 end;
@@ -524,42 +529,42 @@ end;
 procedure TfmMain.TimerTimer(Sender: TObject);
 {$region}
 const csSelectTask =
-  'select   TASK.id as ataskid'#13+
-  '       , TASK."fname"'#13+
-  '       , TASK."fsourcefolder"'#13+
-  '       , TASK."ftargetfolder"'#13+
-  '       , TASK."ftargetfile"'#13+
-  '       , TASK."farchivator"'#13+
-  '       , TASK."farchivatoroptions"'#13+
-  '       , TASK."fperiod"'#13+
-  '       , TASK."ftime"'#13+
-  '       , TASK."fdayofweek"'#13+
-  '       , TASK."fdate"'#13+
-  '       , TASK."frunbeforebackup"'#13+
-  '       , TASK."frunafterbackup"'#13+
-  '       , ARC."fname"'#13+
-  '       , ARC."fextension"'#13+
-  '       , ARC."fpackpath"'#13+
-  '       , ARC."fpackoptions"'#13+
-  '  from tbltasks TASK'#13+
-  '  inner join tblarchivators ARC'#13+
-  '    on ARC."id"=TASK."farchivator"'#13+
-  '  where     (TASK."fstatus">1)'#13+
-  '        and (ARC."fstatus"=1)'#13+
-  '        and (((TASK."fperiod" = 5)'#13+
-  '            and  (TASK."fdate" = :pdate)'#13+
-  '            and  (TASK."ftime" = :ptime))'#13+
-  '          or ((TASK."fperiod" = 4)'#13+
-  '            and (substr(TASK."fdate",1,2) = substr(:pdate,1,2))'#13+
-  '            and (TASK."ftime" = :ptime))'#13+
-  '          or ((TASK."fperiod" = 3)'#13+
-  '            and (TASK."fdayofweek" = :pdayofweek)'#13+
-  '            and (TASK."ftime" = :ptime))'#13+
-  '          or ((TASK."fperiod" = 2)'#13+
-  '            and (TASK."ftime" = :ptime))'#13+
-  '          or ((TASK."fperiod" = 1)'#13+
-  '            and (substr(TASK."ftime",3,2) = substr(:ptime,3,2)))'#13+
-  '          or (TASK."fperiod" = 0))';
+                     'select   TASK.id as ataskid'#13+
+                     '       , TASK.fname'#13+
+                     '       , TASK.fsourcefolder'#13+
+                     '       , TASK.ftargetfolder'#13+
+                     '       , TASK.ftargetfile'#13+
+                     '       , TASK.farchivator'#13+
+                     '       , TASK.farchivatoroptions'#13+
+                     '       , TASK.fperiod'#13+
+                     '       , TASK.ftime'#13+
+                     '       , TASK.fdayofweek'#13+
+                     '       , TASK.fdate'#13+
+                     '       , TASK.frunbeforebackup'#13+
+                     '       , TASK.frunafterbackup'#13+
+                     '       , ARC.fname'#13+
+                     '       , ARC.fextension'#13+
+                     '       , ARC.fpackpath'#13+
+                     '       , ARC.fpackoptions'#13+
+                     '  from tbltasks TASK'#13+
+                     '  inner join tblarchivators ARC'#13+
+                     '    on ARC.id=TASK.farchivator'#13+
+                     '  where     (TASK.fstatus>1)'#13+
+                     '        and (ARC.fstatus=1)'#13+
+                     '        and (((TASK.fperiod = 5)'#13+
+                     '            and  (TASK.fdate = :pdate)'#13+
+                     '            and  (TASK.ftime = :ptime))'#13+
+                     '          or ((TASK.fperiod = 4)'#13+
+                     '            and (left(TASK.fdate,2) = left(cast(:pdate as varchar(5)),2))'#13+
+                     '            and (TASK.ftime = :ptime))'#13+
+                     '          or ((TASK.fperiod = 3)'#13+
+                     '            and (TASK.fdayofweek = :pdayofweek)'#13+
+                     '            and (TASK.ftime = :ptime))'#13+
+                     '          or ((TASK.fperiod = 2)'#13+
+                     '            and (TASK.ftime = :ptime))'#13+
+                     '          or ((TASK.fperiod = 1)'#13+
+                     '            and (substring(TASK.ftime from 4 for 2) = substring(cast(:ptime as varchar(5)) from 4 for 2)))'#13+
+                     '          or (TASK.fperiod = 0))';
 {$endregion}
 var lsLogName : String;
     lsDate, lsTime : String;
@@ -585,37 +590,32 @@ begin
   try
 
     {$ifdef __DEBUG__}
-    lsTime := '12:45';
-    lsDate := '14.06';
+    lsTime := '12:56';
+    lsDate := '11.08';
     {$else}
     DateTimeToString(lsTime, 'hh:nn', Now());
     DateTimeToString(lsDate, 'dd.mm', Now());
     {$endif}
-    moTasks.store();
-    moTaskExecuteQuery.initialize(csSelectTask, 'ataskid');
-    moTaskExecuteQuery.parameter('pdate', lsDate);
-    moTaskExecuteQuery.parameter('ptime', lsTime);
-    moTaskExecuteQuery.parameter('pdayofweek', DayOfTheWeek(Now));
-    moTaskExecuteQuery.open();
-    while not moTaskExecuteQuery.EOF() do
+    initializeQuery(qrTaskExecute, csSelectTask);
+    qrTaskExecute.ParamByName('pdate').AsString := lsDate;
+    qrTaskExecute.ParamByName('ptime').AsString := lsTime;
+    qrTaskExecute.ParamByName('pdayofweek').AsInteger := DayOfTheWeek(Now);
+    qrTaskExecute.open();
+    while not qrTaskExecute.EOF do
     begin
 
-      moTaskExecuteQuery.store();
       ProcessTask();
-      moTaskExecuteQuery.open();
-      moTaskExecuteQuery.reStore();
-
       {$ifdef __DEBUG__}
       moLog.WriteTimeStamp('yyyy.MM.dd hh:mm');
-      moLog.Write(moTaskExecuteQuery.StringField('fname'));
+      moLog.Write(qrTaskExecute.FieldByName('fname').AsString);
       moLog.Writeln('loaded');
       moLog.Save;
       {$endif}
-      moTaskExecuteQuery.next();
+      qrTaskExecute.Next();
     end;
     reopenTables();
-
   except
+
     on E : Exception do
     begin
 
@@ -624,13 +624,13 @@ begin
   end;
 
   //***** Проверим, не нужно ли завершить работу.
-  if FileExists(getAppFolder()+csQuitFile) then
+  if FileExists(getAppFolder() + csQuitFile) then
   begin
 
     if not fmTaskEdit.Visible and not fmArchivators.Visible then
     begin
 
-      Windows.DeleteFileW(PWidechar(UnicodeString(getAppFolder()+csQuitFile)));
+      Windows.DeleteFileW(PWidechar(UnicodeString(getAppFolder() + csQuitFile)));
       fmMain.Close;
     end;
   end
@@ -658,67 +658,98 @@ end;
 
 
 procedure TfmMain.createDatabaseIfNeeded;
-const csSQLCreateTableArchivators =
-        'create table "tblarchivators" ('#13+
-        '    "id" integer primary key asc on conflict abort'+
-        '         autoincrement not null on conflict abort '+
-        '         unique on conflict abort,'#13+
-        '    "fname" nchar(32) not null on conflict abort,'#13+
-        '    "fpackpath" nchar(255) not null on conflict abort,'#13+
-        '    "fpackoptions" nchar(128) not null on conflict abort,'#13+
-        '    "funpackpath" nchar(255) not null on conflict abort,'#13+
-        '    "funpackoptions" nchar(128) not null on conflict abort,'#13+
-        '    "fextension" nchar(8) not null on conflict abort,'#13+
-        '    "fstatus" integer not null on conflict abort default(1)'#13+
-        ');';
-     csSQLCreateTableTasks =
-       'create table "tbltasks"('#13+
-       '  "id" integer primary key asc on conflict abort'+
-       '       autoincrement not null on conflict abort'+
-       '       unique on conflict abort,'#13+
-       '  "fname" nchar(128) not null on conflict abort,'#13+
-       '  "fsourcefolder" nchar(510) not null on conflict abort,'#13+
-       '  "ftargetfolder" nchar(510) not null on conflict abort,'#13+
-       '  "ftargetfile" nchar(510) not null on conflict abort,'#13+
-       '  "farchivator" integer not null on conflict abort,'#13+
-       '  "farchivatoroptions" nchar(510) not null on conflict abort,'#13+
-       '  "fperiod" integer not null on conflict abort,'#13+
-       '  "ftime" nchar(64),'#13+
-       '  "fdayofweek" integer not null on conflict abort,'#13+
-       '  "fdate" nchar(64), '#13+
-       '  "flastrundate" integer, '#13+
-       '  "flastrunresult" integer, '#13+
-       '  "frunafterbackup" nchar(510), '#13+
-       '  "frunbeforebackup" nchar(510), '#13+
-       '  "fstatus" integer not null on conflict abort default(1)'#13+
-       '  );';
-
-var lsDatabaseFullName : String;
-    lblDabaseExists    : Boolean;
+{$region 'SQL'}
+const csSQLCreateScript = 'create domain tid as integer not null;'#13+
+                          'create domain tshortstr as varchar(64);'#13+
+                          'create domain tnormalstr as varchar(128);'#13+
+                          'create domain tlongstr as varchar(256);'#13+
+                          'create domain thugestr as varchar(512);'#13+
+                          'create domain tinteger as integer;'#13+
+                          'set term !!;'#13+
+                          'create table tblarchivators ('#13+
+                          '    id tid,'#13+
+                          '    fname tshortstr not null,'#13+
+                          '    fpackpath tlongstr not null,'#13+
+                          '    fpackoptions tnormalstr,'#13+
+                          '    funpackpath tlongstr,'#13+
+                          '    funpackoptions tnormalstr,'#13+
+                          '    fextension tshortstr not null,'#13+
+                          '    fstatus tinteger not null'#13+
+                          ')!!'#13+
+                          'create generator genarchivators!!'#13+
+                          'create trigger trgarchivators for tblarchivators'#13+
+                          '  active before insert position 1 as begin'#13+
+                          '  if ((new.id is null) or (new.id = 0)) then'#13+
+                          '    new.id=gen_id(genarchivators,1);'#13+
+                          'end!!'#13+
+                          'create ascending index idxarchivators on tblarchivators(fname)!!'#13+
+                          'create table tbltasks('#13+
+                          '  id tid,'#13+
+                          '  fname tnormalstr not null,'#13+
+                          '  fsourcefolder thugestr not null,'#13+
+                          '  ftargetfolder thugestr not null,'#13+
+                          '  ftargetfile thugestr not null,'#13+
+                          '  farchivator tinteger not null,'#13+
+                          '  farchivatoroptions thugestr not null,'#13+
+                          '  fperiod tinteger not null,'#13+
+                          '  ftime tshortstr,'#13+
+                          '  fdayofweek tinteger not null,'#13+
+                          '  fdate tshortstr, '#13+
+                          '  flastrundate tinteger,'#13+
+                          '  flastrunresult tinteger,'#13+
+                          '  frunafterbackup thugestr, '#13+
+                          '  frunbeforebackup thugestr, '#13+
+                          '  fstatus tinteger not null'#13+
+                          '  )!!'#13+
+                          'create generator gentasks!!'#13+
+                          'create trigger trgtasks for tbltasks'#13+
+                          '  active before insert position 1 as begin'#13+
+                          '  if ((new.id is null) or (new.id = 0)) then'#13+
+                          '    new.id=gen_id(gentasks,1);'#13+
+                          'end!!'#13+
+                          'create ascending index idxtasks on tbltasks(fname)!!'#13+
+                          'commit;';
+{$endregion}
+var lsMessage : String;
 begin
 
-  lsDatabaseFullName := getAppFolder()+'DB\'+csDatabaseFileName;
-  lblDabaseExists := FileExists(lsDatabaseFullName);
+  IBC.DatabaseName := getAppFolder()+'DB\'+csDatabaseFileName;
+  IBC.Username := csFireBirdUser;
+  IBC.Password := csFireBirdPassword;
+  IBC.Charset := csFireBirdCharSet;
+  IBC.Dialect := ciFireBirdDialect;
+  IBC.Params.Add(csFireBirdPageSize);
   try
 
-    SQLite.DatabaseName := lsDatabaseFullName;
-    SQLite.Open;
-    SQLite.Connected := True;
-    if not lblDabaseExists then
+    if FileExists(IBC.DatabaseName) then
     begin
 
-      Transact.StartTransaction;
-      SQLite.ExecuteDirect(csSQLCreateTableArchivators);
-      SQLite.ExecuteDirect(csSQLCreateTableTasks);
-      Transact.Commit;
+      lsMessage := 'При соединении с базой данных';
+      IBC.Open;
+    end else
+    begin
+
+      lsMessage := 'При создании базы данных';
+      IBC.CreateDB();
+      IBC.Open();
+      trCreate.EndTransaction;
+      trCreate.StartTransaction;
+      scrCreate.Script.Clear;
+      scrCreate.Script.AddDelimitedText(csSQLCreateScript, #13, True);
+      scrCreate.Execute;
     end;
   except
+
     on E : Exception do
     begin
 
-      processException('Создание базы данных привело к возникновению исключительной ситуации: ', E);
-		end;
-	end;
+      processException(lsMessage + ' возникла исключительная ситуация: ', E);
+ 		end;
+ 	end;
+  qrTasks.Transaction := trTasks;
+  qrTaskEx.Transaction := trTaskEx;
+  qrTaskExecute.Transaction := trTaskExecute;
+  scrCreate.Transaction := trCreate;
 end;
 
 
@@ -749,28 +780,27 @@ var lsCmdLine,
     lsTargetFolder : String;
     liProcessedTaskID : Integer;
 begin
-
   //***** Соберем строку параметров упаковщика
-  lsCmdLine := '/C ' + moTaskExecuteQuery.stringField('fpackpath') + ' ' +
-                       moTaskExecuteQuery.stringField('fpackoptions') + ' '+
-                       moTaskExecuteQuery.stringField('farchivatoroptions') + ' ';
+  lsCmdLine := '/C ' + qrTaskExecute.FieldByName('fpackpath').AsString + ' ' +
+                       qrTaskExecute.FieldByName('fpackoptions').AsString + ' '+
+                       qrTaskExecute.FieldByName('farchivatoroptions').AsString + ' ';
   //***** Сгенерим имя файла архива в зависимости от периода
-  lsBackupName := moTaskExecuteQuery.stringField('ftargetfile');
+  lsBackupName := qrTaskExecute.FieldByName('ftargetfile').AsString;
   lsBackupName := ReplaceStr(lsBackupName, '`', '"');
   lsBackupName := FormatDateTime(lsBackupName,Now,MyOwnFormatSettings);
-  lsTargetFolder := addSeparator(moTaskExecuteQuery.stringField('ftargetfolder'));
-  lsBackupName := lsTargetFolder + lsBackupName + '.' + moTaskExecuteQuery.stringField('fextension');
+  lsTargetFolder := addSeparator(qrTaskExecute.FieldByName('ftargetfolder').AsString);
+  lsBackupName := lsTargetFolder + lsBackupName + '.' + qrTaskExecute.FieldByName('fextension').AsString;
 
   //***** Добавим имя архива в командную строку
   lsCmdLine := lsCmdLine + lsBackupName + ' ';
 
   //***** Папка или файл?
-  lsCmdLine := lsCmdLine + moTaskExecuteQuery.stringField('fsourcefolder');
+  lsCmdLine := lsCmdLine + qrTaskExecute.FieldByName('fsourcefolder').AsString;
 
-  if not isEmpty(moTaskExecuteQuery.stringField('frunbeforebackup')) then
+  if not isEmpty(qrTaskExecute.FieldByName('frunbeforebackup').AsString) then
   begin
 
-    lsBeforeCmdLine := '/C ' + moTaskExecuteQuery.stringField('frunbeforebackup') + ' "' + lsBackupName + '"';
+    lsBeforeCmdLine := '/C ' + qrTaskExecute.FieldByName('frunbeforebackup').AsString + ' "' + lsBackupName + '"';
     EasyExec('cmd.exe',lsBeforeCmdLine, True,True);
   end;
 
@@ -780,7 +810,7 @@ begin
   fmMain.Cursor := crDefault;
   // *** Отпишем в лог
   moLog.WriteTimeStamp(csTimeStampMask);
-  moLog.WriteLN('task '+ moTaskExecuteQuery.stringField('fname') + ' executed');
+  moLog.WriteLN('task '+ qrTaskExecute.FieldByName('fname').AsString + ' executed');
   moLog.WriteLN(lsCmdLine);
   if FileExists(lsBackupName) then
   begin
@@ -788,10 +818,10 @@ begin
     moLog.WriteLN('successfully =)');
 
     //***** Запускаем "после резервирования"
-    if not isEmpty(moTaskExecuteQuery.stringField('frunafterbackup')) then
+    if not isEmpty(qrTaskExecute.FieldByName('frunafterbackup').AsString) then
     begin
 
-      lsCmdLine := '/C ' + moTaskExecuteQuery.stringField('frunafterbackup') + ' "' + lsBackupName + '"';
+      lsCmdLine := '/C ' + qrTaskExecute.FieldByName('frunafterbackup').AsString + ' "' + lsBackupName + '"';
       EasyExec('cmd.exe',lsCmdLine,True,True);
     end;
   end else
@@ -802,26 +832,22 @@ begin
   end;
   moLog.Save;
   //***** Занесем в базу результат
-  moTasks.store();
-  liProcessedTaskID := moTaskExecuteQuery.integerField('ataskid');
-  // **** К чему бы тут это?
-  Transact.EndTransaction;
-  Transact.StartTransaction;
+  liProcessedTaskID := qrTaskExecute.FieldByName('ataskid').AsInteger;
   try
 
-    initializeQuery(qrTaskUpdate,csSQLUpdate, False);
-    qrTaskUpdate.ParamByName('pid').AsInteger := liProcessedTaskID;
-    qrTaskUpdate.ParamByName('plastrunresult').AsInteger :=
+    initializeQuery(qrTaskEx,csSQLUpdate, False);
+    qrTaskEx.ParamByName('pid').AsInteger := liProcessedTaskID;
+    qrTaskEx.ParamByName('plastrunresult').AsInteger :=
       iif(FileExists(lsBackupName), ciLastRunSuccessful, ciLastRunUnSuccessful);
-    qrTaskUpdate.ParamByName('plastrundate').AsDate := DateOf(Now);
-    qrTaskUpdate.ExecSQL;
-    Transact.Commit;
+    qrTaskEx.ParamByName('plastrundate').AsDate := DateOf(Now);
+    qrTaskEx.ExecSQL;
+    trTaskEx.Commit;
   except
     on E : Exception do
     begin
 
+      trTaskEx.Rollback;
       processException('Выполнение задачи привело к возникновению исключительной ситуации: ', E);
-      Transact.Rollback;
 		end;
   end;
   reopenTables();
@@ -839,41 +865,24 @@ begin
 end;
 
 
-procedure TfmMain.AfterScroll;
-begin
-
-  if moTasks.integerField('fstatus') = ciStatusInactive then
-  begin
-
-    actActivateTask.ImageIndex := ciIconActivate;
-    actActivateTask.Hint := 'Активировать задачу';
-  end else
-  begin
-
-    actActivateTask.ImageIndex:=ciIconDeActivate;
-    actActivateTask.Hint := 'Деактивировать задачу';
-  end;
-end;
-
-
 procedure TfmMain.reopenTables;
+var liID : Integer;
 begin
-
+  liID := -1;
   try
 
-    if not moTasks.isClosed() then
+    if qrTasks.State = dsBrowse then
     begin
 
-      moTasks.close();
+      liID := qrTasks.FieldByName('ataskid').AsInteger;
 		end;
-
-    moTasks.initialize(csSQLSelectTasks, 'ataskid');
-    moTasks.parameter('pstatus', ciStatusDeleted);
-    moTasks.open();
-    moTasks.reStore();
-    AfterScroll();
+		initializeQuery(qrTasks, csSQLSelectTasks);
+    qrTasks.ParamByName('pstatus').AsInteger:=ciStatusInActive;
+    qrTasks.Open;
+    qrTasks.First;
+    qrTasks.Locate('ataskid', liID {%H-}, []);
     // *** Разрешим / запретим кнопки в зависимости от состояния выборки
-    actEditTask.Enabled := moTasks.Count()>0;
+    actEditTask.Enabled := qrTasks.RecordCount > 0;
     actDeleteTask.Enabled := actEditTask.Enabled;
     actRunTask.Enabled := actEditTask.Enabled;
     actActivateTask.Enabled := actEditTask.Enabled;

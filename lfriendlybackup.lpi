@@ -51,6 +51,7 @@
         <Filename Value="archiveredit.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="fmArchivatorEdit"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="archiverEdit"/>
       </Unit>

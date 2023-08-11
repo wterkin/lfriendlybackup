@@ -6,8 +6,8 @@ object fmMain: TfmMain
   Caption = 'LBackupMaker'
   ClientHeight = 195
   ClientWidth = 961
-  OnActivate = FormActivate
   OnClose = FormClose
+  OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnWindowStateChange = FormWindowStateChange
   Position = poDesktopCenter
@@ -234,21 +234,8 @@ object fmMain: TfmMain
     ParentShowHint = False
     ShowHint = True
   end
-  object SQLite: TSQLite3Connection
-    Connected = False
-    LoginPrompt = False
-    KeepConnection = False
-    Transaction = Transact
-    CharSet = 'UTF-8'
-    AlwaysUseBigint = False
-    Left = 712
-  end
-  object Transact: TSQLTransaction
-    Active = False
-    Database = SQLite
-    Left = 448
-  end
   object qrTasks: TSQLQuery
+    PacketRecords = 1
     MaxIndexesCount = 4
     FieldDefs = <    
       item
@@ -391,19 +378,26 @@ object fmMain: TfmMain
         Name = 'fstatus_1'
         DataType = ftInteger
         Precision = -1
+      end    
+      item
+        Name = 'astatus'
+        DataType = ftString
       end>
     AfterScroll = qrTasksAfterScroll
-    Database = SQLite
-    Transaction = Transact
+    Database = IBC
+    Transaction = trTasks
     SQL.Strings = (
       ''
     )
     Params = <>
     Macros = <>
-    Left = 344
+    Left = 312
+    Top = 48
   end
   object dsTasks: TDataSource
-    Left = 392
+    DataSet = qrTasks
+    Left = 312
+    Top = 96
   end
   object Timer: TTimer
     Enabled = False
@@ -412,7 +406,7 @@ object fmMain: TfmMain
     Left = 752
   end
   object pmState: TPopupMenu
-    Left = 288
+    Left = 712
     object miActivate: TMenuItem
       Caption = 'Активировать'
     end
@@ -420,13 +414,14 @@ object fmMain: TfmMain
       Caption = 'Деактивировать'
     end
   end
-  object qrTaskExt: TSQLQuery
+  object qrTaskEx: TSQLQuery
     FieldDefs = <>
-    Database = SQLite
-    Transaction = Transact
+    Database = IBC
+    Transaction = trTasks
     Params = <>
     Macros = <>
-    Left = 512
+    Left = 368
+    Top = 48
   end
   object TrayIcon: TTrayIcon
     Icon.Data = {
@@ -910,12 +905,72 @@ object fmMain: TfmMain
       OnExecute = actQuitExecute
     end
   end
-  object qrTaskUpdate: TSQLQuery
+  object IBC: TIBConnection
+    Connected = False
+    LoginPrompt = False
+    KeepConnection = False
+    Params.Strings = (
+      'PAGE_SIZE=16384'
+    )
+    Password = 'masterkey'
+    Transaction = trTasks
+    UserName = 'SYSDBA'
+    CharSet = 'UTF8'
+    CheckTransactionParams = False
+    UseConnectionCharSetIfNone = False
+    Left = 256
+  end
+  object trTasks: TSQLTransaction
+    Active = False
+    Database = IBC
+    Left = 312
+  end
+  object trTaskEx: TSQLTransaction
+    Active = False
+    Database = IBC
+    Left = 368
+  end
+  object scrCreate: TSQLScript
+    DataBase = IBC
+    Transaction = trCreate
+    AutoCommit = False
+    UseDollarString = False
+    Directives.Strings = (
+      'SET TERM'
+      'COMMIT WORK'
+      'COMMIT RETAIN'
+      'COMMIT'
+      '#IFDEF'
+      '#IFNDEF'
+      '#ELSE'
+      '#ENDIF'
+      '#DEFINE'
+      '#UNDEF'
+      '#UNDEFINE'
+    )
+    Terminator = ';'
+    CommentsinSQL = True
+    UseSetTerm = True
+    UseCommit = True
+    UseDefines = True
+    Left = 424
+  end
+  object trCreate: TSQLTransaction
+    Active = False
+    Database = IBC
+    Left = 424
+    Top = 48
+  end
+  object trTaskExecute: TSQLTransaction
+    Active = False
+    Database = IBC
+    Left = 496
+  end
+  object qrTaskExecute: TSQLQuery
     FieldDefs = <>
-    Database = SQLite
-    Transaction = Transact
     Params = <>
     Macros = <>
-    Left = 648
+    Left = 496
+    Top = 48
   end
 end
