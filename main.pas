@@ -198,7 +198,7 @@ const
       csQuitFile         = csControlChar+'quit';
       csRunningFile      = csControlChar+'iamrunning';
       csIniFile          = 'lfriendlybackup.ini';
-      csVersion          = 'ver. 2.0.1';
+      csVersion          = 'ver. 2.1';
       ciIconStart        = 6;
       ciIconStop         = 7;
       ciIconDeactivate   = 9;
@@ -210,7 +210,7 @@ const
       csFireBirdCharSet  = 'utf8';
       ciFireBirdDialect  = 3;
       csFireBirdPageSize = '16384';
-      {$define __DEBUG__}
+      {define __DEBUG__}
 var
   fmMain   : TfmMain;
   MainForm : TfmMain;
@@ -280,7 +280,7 @@ begin
   moLog.WriteLN('debug mode on');
   Timer.Interval := 10000;
   {$else}
-  Timer.Interval = 60000;
+  Timer.Interval := 60000;
   {$endif}
 
   // *** Так как у нас DLLки лежат в папке DLL, мы должны туда перейти
@@ -294,10 +294,8 @@ end;
 
 procedure TfmMain.dbgTasksPrepareCanvas(sender: TObject; DataCol: Integer;
   Column: TColumn; AState: TGridDrawState);
-//var s : string;
 begin
 
-  //s:=dbgTasks.Columns[0].Field.AsString;
   // *** Если последний запуск был успешен, отрисуем надпись другим цветом
   dbgTasks.Canvas.Font.Color:=iif(qrTasks.FieldByName('flastrunresult').AsInteger>0,
   clColorLastRunSuccessful, clColorLastRunUnSuccessful);
@@ -559,14 +557,14 @@ const csSelectTask =
                      '          or ((TASK.fperiod = 4)'#13+
                      '            and (left(TASK.fdate,2) = left(cast(:pdate as varchar(5)),2))'#13+
                      '            and (TASK.ftime = :ptime))'#13+
-                     '         /* or ((TASK.fperiod = 3)'#13+
+                     '          or ((TASK.fperiod = 3)'#13+
                      '            and (TASK.fdayofweek = :pdayofweek)'#13+
                      '            and (TASK.ftime = :ptime))'#13+
                      '          or ((TASK.fperiod = 2)'#13+
                      '            and (TASK.ftime = :ptime))'#13+
                      '          or ((TASK.fperiod = 1)'#13+
-                     '            and (substring(TASK.ftime from 3 for 2) = substring(cast(:ptime as varchar(5) from 3 for 2)))'#13+
-                     '          or (TASK.fperiod = 0)*/)';
+                     '            and (substring(TASK.ftime from 4 for 2) = substring(cast(:ptime as varchar(5)) from 4 for 2)))'#13+
+                     '          or (TASK.fperiod = 0))';
 {$endregion}
 var lsLogName : String;
     lsDate, lsTime : String;
@@ -592,8 +590,8 @@ begin
   try
 
     {$ifdef __DEBUG__}
-    lsTime := '12:45';
-    lsDate := '14.06';
+    lsTime := '12:56';
+    lsDate := '11.08';
     {$else}
     DateTimeToString(lsTime, 'hh:nn', Now());
     DateTimeToString(lsDate, 'dd.mm', Now());
@@ -601,7 +599,7 @@ begin
     initializeQuery(qrTaskExecute, csSelectTask);
     qrTaskExecute.ParamByName('pdate').AsString := lsDate;
     qrTaskExecute.ParamByName('ptime').AsString := lsTime;
-    // qrTaskExecute.ParamByName('pdayofweek').AsInteger := DayOfTheWeek(Now);
+    qrTaskExecute.ParamByName('pdayofweek').AsInteger := DayOfTheWeek(Now);
     qrTaskExecute.open();
     while not qrTaskExecute.EOF do
     begin
@@ -626,13 +624,13 @@ begin
   end;
 
   //***** Проверим, не нужно ли завершить работу.
-  if FileExists(getAppFolder()+csQuitFile) then
+  if FileExists(getAppFolder() + csQuitFile) then
   begin
 
     if not fmTaskEdit.Visible and not fmArchivators.Visible then
     begin
 
-      Windows.DeleteFileW(PWidechar(UnicodeString(getAppFolder()+csQuitFile)));
+      Windows.DeleteFileW(PWidechar(UnicodeString(getAppFolder() + csQuitFile)));
       fmMain.Close;
     end;
   end
@@ -882,7 +880,7 @@ begin
     qrTasks.ParamByName('pstatus').AsInteger:=ciStatusInActive;
     qrTasks.Open;
     qrTasks.First;
-    qrTasks.Locate('ataskid', liID, []);
+    qrTasks.Locate('ataskid', liID {%H-}, []);
     // *** Разрешим / запретим кнопки в зависимости от состояния выборки
     actEditTask.Enabled := qrTasks.RecordCount > 0;
     actDeleteTask.Enabled := actEditTask.Enabled;
