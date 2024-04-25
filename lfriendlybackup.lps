@@ -59,9 +59,9 @@
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="190"/>
-        <CursorPos X="37" Y="201"/>
-        <FoldState Value=" TJjT7S011 PcqR1 T3m70I4 pjGk60W6 pid]983 pk3kN0C1]R7jP0B1]RfjF084 PiHiV0t"/>
+        <TopLine Value="371"/>
+        <CursorPos Y="383"/>
+        <FoldState Value=" TJjT7S011 PcqR1 T3m70I416 plCnC083 pk3kN0C012 pj9le084 PiHiV0:"/>
         <UsageCount Value="154"/>
         <Bookmarks Count="3">
           <Item0 Y="121" ID="9"/>
@@ -115,8 +115,8 @@
       <Unit>
         <Filename Value="..\tlib5\tini.pas"/>
         <EditorIndex Value="10"/>
-        <TopLine Value="131"/>
-        <CursorPos X="7" Y="135"/>
+        <TopLine Value="207"/>
+        <CursorPos X="5" Y="210"/>
         <UsageCount Value="77"/>
         <Loaded Value="True"/>
       </Unit>
@@ -211,50 +211,6 @@
     <JumpHistory HistoryIndex="29">
       <Position>
         <Filename Value="main.pas"/>
-        <Caret Line="788" TopLine="774"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="786" TopLine="774"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="788" TopLine="774"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="786" TopLine="774"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="788" TopLine="774"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="787" TopLine="774"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="788" TopLine="774"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="787" TopLine="774"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="788" TopLine="774"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="790" TopLine="774"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="791" TopLine="774"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
         <Caret Line="792" TopLine="775"/>
       </Position>
       <Position>
@@ -329,6 +285,50 @@
         <Filename Value="main.pas"/>
         <Caret Line="885" Column="33" TopLine="877"/>
       </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="204" TopLine="190"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="365" Column="12" TopLine="358"/>
+      </Position>
+      <Position>
+        <Filename Value="..\tlib5\tini.pas"/>
+        <Caret Line="112" Column="28" TopLine="99"/>
+      </Position>
+      <Position>
+        <Filename Value="..\tlib5\tini.pas"/>
+        <Caret Line="210" Column="5" TopLine="207"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="728" TopLine="711"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="365" TopLine="316"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="366" TopLine="316"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="367" TopLine="316"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="368" TopLine="316"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="362" TopLine="316"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="379" TopLine="371"/>
+      </Position>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
@@ -350,6 +350,15 @@
     </HistoryLists>
   </ProjectSession>
   <Debugging>
+    <BreakPoints>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="main.pas"/>
+        <Line Value="365"/>
+      </Item>
+    </BreakPoints>
     <Watches>
       <Item>
         <Expression Value="lsTime"/>
